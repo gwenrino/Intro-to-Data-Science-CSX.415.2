@@ -29,23 +29,25 @@ unique(country_col) # list unique values from country column
 ```
 
 **Question 2**  
+Show the unique values in the 'region' column of the dataset.
 ```{r}
 region_col <- WorldCities$region
 unique(region_col)
 ```
 
-**Question 3**
+**Question 3**  
+Show the unique values in the 'country' column of the dataset using pipe operator.
 ```{r}
 WorldCities %>% select(country) %>% unique()
 ```
 
 ```{r}
 WorldCities %>% ggplot(aes(x = population)) +
-  geom_histogram() +
-  xlab('City Population')
+  geom_histogram()
 ```
 
-**Question 4**
+**Question 4**  
+Labeled histogram of city populations.
 ```{r}
 WorldCities %>% ggplot(aes(x = population)) +
   geom_histogram() +
