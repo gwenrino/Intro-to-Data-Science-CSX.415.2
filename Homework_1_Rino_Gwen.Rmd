@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-My Github repository for my assignments can be found at this URL: <https://github.com/gwenrino/compscix-415-2-assignments>
+My Github repository for my assignments can be found at this URL:  <https://github.com/gwenrino/compscix-415-2-assignments>
 
 ```{r load_packages, warning=FALSE, message=FALSE}
 library(mdsr)
@@ -17,19 +17,40 @@ library(tidyverse)
 data("WorldCities")
 ```
 
-**Question 1:**
+**Question 1**  
 There are 23,018 observations on 10 variables in this dataset.
 Some of the variable names are latitude, longitude, and population.
 
 ```{r}
 glimpse(WorldCities)
-WorldCities <- head(WorldCities, 200) # 200 rows
+WorldCities <- head(WorldCities, 200) # subset the data, just first 200 rows
 country_col <- WorldCities$country # extract a column
 unique(country_col) # list unique values from country column
 ```
 
+**Question 2**  
 ```{r}
 region_col <- WorldCities$region
 unique(region_col)
 ```
 
+**Question 3**
+```{r}
+WorldCities %>% select(country) %>% unique()
+```
+
+```{r}
+WorldCities %>% ggplot(aes(x = population)) +
+  geom_histogram() +
+  xlab('City Population')
+```
+
+**Question 4**
+```{r}
+WorldCities %>% ggplot(aes(x = population)) +
+  geom_histogram() +
+  xlab('City Population') +
+  ylab('Count') +
+  ggtitle('Distribution of Populations of 200 World Cities') +
+  theme_bw()
+```
