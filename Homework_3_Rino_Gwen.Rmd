@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load_packages, warning=FALSE, message=FALSE}
 library(tidyverse)
+library(nycflights13)
 ```
 
 **R for Data Science Exercise 3.8.1**
@@ -53,13 +54,75 @@ filter(diamonds, carat > 3)
 
 **R for Data Science Exercise 5.2.4**
 
-1.
+1. Find all flights that:
 
-2.
+a. Had an arrival delay of two or more hours
 
-3.
+```{r}
+filter(flights, arr_delay >= 120)
+```
 
-4.
+b. Flew to Houston (IAH or HOU)
+
+```{r}
+filter(flights, dest == "IAH" | dest == "HOU")
+# OR
+filter(flights, dest %in% c("IAH", "HOU"))
+```
+
+c. Were operated by United, American, or Delta
+
+```{r}
+filter(flights, carrier %in% c("UA", "AA", "DL"))
+```
+
+d. Departed in summer (July, August, and September)
+
+```{r}
+filter(flights, month %in% c(7,8,9))
+```
+
+e. Arrived more than two hours late, but didn’t leave late
+
+```{r}
+filter(flights, arr_delay > 120 & dep_delay <= 0)
+```
+
+f. Were delayed by at least an hour, but made up over 30 minutes in flight
+
+```{r}
+filter(flights, dep_delay >= 60 & arr_delay < (dep_delay - 30))
+```
+
+g. Departed between midnight and 6am (inclusive)
+
+```{r}
+filter(flights, dep_time <= 600)
+```
+
+2. `between()` tests whether values in a numeric vector fall within a specified range. It could be used as alternatives as noted below:
+
+```{r}
+flights[between(flights$month, 7, 9), ] # 1.d
+flights[between(flights$dep_time, 0, 600), ] # 1.g.
+```
+
+3. 8,255 rows have a missing `dep_time`, and these rows are also missing `dep_delay`, `arr_time`, `arr_delay`, and `air_time`. It seems likely that these flights were canceled.
+
+```{r}
+filter(flights, is.na(dep_time))
+```
+
+4. 
+```{r}
+NA ^ 0 # Any value, even an unknown, raised to the 0 power = 1.
+
+NA | TRUE # If either part of a Boolean OR is TRUE, the whole statement is TRUE. Doesn't matter if the other part is unknown.
+
+FALSE & NA # If either part of a Boolean AND is FALSE, the whole statement is FALSE. Doesn't matter if the other part is unknown.
+
+NA * 0 # Well, this is a tricky counterexample! Seems like the answer should be 0, because any value, even an unknown, multiplied by 0 = 0.
+```
 
 **R for Data Science Exercise 5.4.1**
 
