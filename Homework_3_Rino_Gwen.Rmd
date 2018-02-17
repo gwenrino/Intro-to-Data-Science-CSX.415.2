@@ -1,5 +1,5 @@
 ---
-title: "Homework_3_Rino_Gwen"
+title: "COMPSCIX 415.2 Homework 3"
 author: "Gwen Rino"
 date: "2/16/2018"
 output: html_document
@@ -16,7 +16,7 @@ library(nycflights13)
 
 **R for Data Science Exercise 3.8.1**
 
-1. The problem with this graph is that it is overplotted (points overlap each other). It could be improved by using `position = "jitter"` to add random noise that will spread the points out a bit and make them easier to see and interpret.
+1. The problem with the graph is that it is overplotted (points overlap each other). It could be improved by using `position = "jitter"` to add random noise that will spread the points out a bit and make them easier to see and interpret.
 
 2. The parameters `width` and `height` control the amount of jitter.
 
@@ -33,13 +33,11 @@ ggplot(mpg, aes(class, hwy)) +
 
 2. `labs()` is used to modify labels of plot axes, legends, titles, subtitles, and captions.
 
-4. This plot shows several things: there is a positive linear relationship between city mpg and highway mpg, all cars are more fuel efficient on the highway than in the city, and there is (generally) a greater difference between city and highway fuel efficiency for cars that get higher mpg in the city (that is, the slope of the best fit line is greater than 1).
-
-`coord_fixed()` makes the scale for each axis the same, which is important for visualizing the increasing difference between city and highway fuel efficiency as city fuel efficiency increases. `geom_abline` adds the reference diagonal with a slope of 1, which further emphasizes this same relationship.
+4. The plot shows several things: there is a positive linear relationship between city mpg and highway mpg, all cars are more fuel efficient on the highway than in the city, and there is (generally) a greater difference between city and highway fuel efficiency for cars that get higher mpg in the city (that is, the slope of the best fit line is greater than 1). `coord_fixed()` makes the scale for each axis the same, which is important for visualizing the increasing difference between city and highway fuel efficiency as city fuel efficiency increases. `geom_abline` adds the reference diagonal with a slope of 1, which further emphasizes this same relationship.
 
 **R for Data Science Exercise 4.4**
 
-1. This code doesn't work because the character "i" has been replaced with a "1".
+1. The code doesn't work because the character "i" has been replaced with a "1".
 
 2. Corrected code:
 
@@ -100,7 +98,7 @@ g. Departed between midnight and 6am (inclusive)
 filter(flights, dep_time <= 600)
 ```
 
-2. `between()` tests whether values in a numeric vector fall within a specified range. It could be used as alternatives as noted below:
+2. `between()` tests whether values in a numeric vector fall within a specified range. It could be used as alternatives as noted here:
 
 ```{r, eval = FALSE}
 flights[between(flights$month, 7, 9), ] # 1.d.
