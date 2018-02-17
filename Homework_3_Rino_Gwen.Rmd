@@ -38,9 +38,18 @@ ggplot(mpg, aes(class, hwy)) +
 
 **R for Data Science Exercise 4.4**
 
-1.
+1. This code doesn't work because the character "i" has been replaced with a "1".
 
-2.
+2. Corrected code:
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+filter(mpg, cyl == 8)
+
+filter(diamonds, carat > 3)
+```
 
 **R for Data Science Exercise 5.2.4**
 
