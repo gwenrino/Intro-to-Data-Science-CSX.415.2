@@ -30,9 +30,11 @@ ggplot(mpg, aes(class, hwy)) +
 
 **R for Data Science Exercise 3.9.1**
 
-2.
+2. `labs()` is used to modify labels of plot axes, legends, titles, subtitles, and captions.
 
-4.
+4. This plot shows several things: there is a positive linear relationship between city mpg and highway mpg, all cars are more fuel efficient on the highway than in the city, and there is (generally) a greater difference between city and highway fuel efficiency for cars that get higher mpg in the city.
+
+`coord_fixed()` makes the scale for each axis the same, which is important for visualizing the increasing difference between city and highway fuel efficiency as city fuel efficiency increases. `geom_abline` adds the reference diagonal with a slope of 1, which further emphasizes this same relationship.
 
 **R for Data Science Exercise 4.4**
 
