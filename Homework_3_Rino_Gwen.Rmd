@@ -1,0 +1,11 @@
+---
+title: "Homework_3_Rino_Gwen"
+author: "Gwen Rino"
+date: "2/16/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
