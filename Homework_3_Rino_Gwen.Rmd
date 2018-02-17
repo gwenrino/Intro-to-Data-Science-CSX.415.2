@@ -16,7 +16,7 @@ library(nycflights13)
 
 **R for Data Science Exercise 3.8.1**
 
-1. The problem with this graph is that it is overplotted (points overlap each other). It could be improved by inserting `position = "jitter"` to add random noise that will spread the points out a bit and make them easier to see and interpret.
+1. The problem with this graph is that it is overplotted (points overlap each other). It could be improved by using `position = "jitter"` to add random noise that will spread the points out a bit and make them easier to see and interpret.
 
 2. The parameters `width` and `height` control the amount of jitter.
 
@@ -33,7 +33,7 @@ ggplot(mpg, aes(class, hwy)) +
 
 2. `labs()` is used to modify labels of plot axes, legends, titles, subtitles, and captions.
 
-4. This plot shows several things: there is a positive linear relationship between city mpg and highway mpg, all cars are more fuel efficient on the highway than in the city, and there is (generally) a greater difference between city and highway fuel efficiency for cars that get higher mpg in the city.
+4. This plot shows several things: there is a positive linear relationship between city mpg and highway mpg, all cars are more fuel efficient on the highway than in the city, and there is (generally) a greater difference between city and highway fuel efficiency for cars that get higher mpg in the city (that is, the slope of the best fit line is greater than 1).
 
 `coord_fixed()` makes the scale for each axis the same, which is important for visualizing the increasing difference between city and highway fuel efficiency as city fuel efficiency increases. `geom_abline` adds the reference diagonal with a slope of 1, which further emphasizes this same relationship.
 
@@ -103,7 +103,7 @@ filter(flights, dep_time <= 600)
 2. `between()` tests whether values in a numeric vector fall within a specified range. It could be used as alternatives as noted below:
 
 ```{r, eval = FALSE}
-flights[between(flights$month, 7, 9), ] # 1.d
+flights[between(flights$month, 7, 9), ] # 1.d.
 flights[between(flights$dep_time, 0, 600), ] # 1.g.
 ```
 
@@ -121,15 +121,48 @@ NA | TRUE # If either part of a Boolean OR is TRUE, the whole statement is TRUE.
 
 FALSE & NA # If either part of a Boolean AND is FALSE, the whole statement is FALSE. Doesn't matter if the other part is unknown.
 
-NA * 0 # Well, this is a tricky counterexample! Seems like the answer should be 0, because any value, even an unknown, multiplied by 0 = 0.
+NA * 0 # Well, this IS a tricky counterexample! Seems like the answer should be 0, because any value, even an unknown, multiplied by 0 = 0.
 ```
 
 **R for Data Science Exercise 5.4.1**
 
-1.
+1. Here are a number of ways to select dep_time, dep_delay, arr_time, and arr_delay from flights:
 
-2.
+```{r, eval = FALSE}
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
 
-3.
+select(flights, -year, -month, -day, -sched_dep_time, -sched_arr_time,
+       -carrier, -flight, -tailnum, -origin, -dest, -air_time, -distance,
+       -hour, -minute, -time_hour)
 
-4.
+select(flights, starts_with("dep"), starts_with("arr"))
+
+select(flights, 4, 6, 7, 9)
+
+select(flights, 4:9, -5, -8)
+
+select(flights, dep_time:arr_delay, -sched_dep_time, -sched_arr_time)
+
+select(flights, dep_time:arr_delay, -(starts_with("sched")))
+
+select(flights, starts_with("dep"), 7, 9)
+
+select(flights, starts_with("arr"), 4, 6)
+
+select(flights, ends_with("time"), ends_with("delay"), -sched_dep_time,
+       -sched_arr_time, -air_time)
+
+select(flights, ends_with("delay"), dep_time, arr_time)
+
+```
+
+2. Even if you include the name of a variable multiple times in a `select()` call, the variable is only selected once.
+
+3. If you create a vector of the names of the variables of interest, then you can use `one_of()` with `select()` to select the variables in the vector. See the example below.
+
+```{r}
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+select(flights, one_of(vars))
+```
+
+4. The select helpers ignore case by default. If you want the helper to be case-sensitive, add the argument `ignore.case = FALSE`
