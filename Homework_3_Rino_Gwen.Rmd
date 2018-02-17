@@ -9,3 +9,53 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r load_packages, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+**R for Data Science Exercise 3.8.1**
+
+1. The problem with this graph is that it is overplotted (points overlap each other). It could be improved by inserting `position = "jitter"` to add random noise that will spread the points out a bit and make them easier to see and interpret.
+
+2. The parameters `width` and `height` control the amount of jitter.
+
+3. `geom_jitter()` and `geom_count()` are two different ways of dealing with overplotting. `geom_jitter()` adds random noise to spread out the points, while `geom_count()` counts the number of observations at each location, then maps the count to the size of the point.
+
+4. The default position adjustment for `geom_boxplot()` is dodged. For example:
+
+```{r}
+ggplot(mpg, aes(class, hwy)) + 
+  geom_boxplot(aes(color = drv))
+```
+
+**R for Data Science Exercise 3.9.1**
+
+2.
+
+4.
+
+**R for Data Science Exercise 4.4**
+
+1.
+
+2.
+
+**R for Data Science Exercise 5.2.4**
+
+1.
+
+2.
+
+3.
+
+4.
+
+**R for Data Science Exercise 5.4.1**
+
+1.
+
+2.
+
+3.
+
+4.
