@@ -54,7 +54,7 @@ summary <- flights.1 %>% group_by(day_of_year) %>%
 ggplot(summary, aes(x = ave_delay, y = prop_cancelled)) + geom_point(alpha = .6)
 ```
 
-5. F9 is the carrier with the greatest mean dep_delay. However, F9 only flew to one destination (DEN), and only 685 flights. Other carriers different numbers of flights to different numbers of airports (for example, EV flew thousands of flights to 61 different airports). When I look at the third dataframe, sorted by mean_delay by carrier and destination, I can see that EV is the carrier that is most routinely late.
+5. F9 is the carrier with the greatest mean dep_delay. However, F9 only flew to one destination (DEN), and only 685 flights. Other carriers different numbers of flights to different numbers of airports (for example, EV flew thousands of flights to 61 different airports). When I look at the third dataframe, sorted by mean_delay and grouped by carrier and destination, I can see that EV is the carrier that is most routinely late.
 
 ```{r}
 flights %>% group_by(carrier) %>% 
@@ -77,13 +77,58 @@ flights %>% group_by(dest, carrier) %>%
 
 Section 10.5: #1, #2, #3 and #6 only
 
+1. How can you tell if an object is a tibble? (Hint: try printing mtcars, which is a regular data frame).
+
+2. Compare and contrast the following operations on a data.frame and equivalent tibble. What is different? Why might the default data frame behaviours cause you frustration?
+
+df <- data.frame(abc = 1, xyz = "a")
+df$x
+df[, "xyz"]
+df[, c("abc", "xyz")]
+
+3. If you have the name of a variable stored in an object, e.g. var <- "mpg", how can you extract the reference variable from a tibble?
+
+6. What option controls how many additional column names are printed at the footer of a tibble?
+
 **R for Data Science Exercise 12.3.3**
 
-Section 12.3.3: #2, #3 and #4 only
+2. Why does this code fail?
+
+table4a %>% 
+  gather(1999, 2000, key = "year", value = "cases")
+#> Error in combine_vars(vars, ind_list): Position must be between 0 and n
+
+3. Why does spreading this tibble fail? How could you add a new column to fix the problem?
+
+people <- tribble(
+  ~name,             ~key,    ~value,
+  #-----------------|--------|------
+  "Phillip Woods",   "age",       45,
+  "Phillip Woods",   "height",   186,
+  "Phillip Woods",   "age",       50,
+  "Jessica Cordero", "age",       37,
+  "Jessica Cordero", "height",   156
+)
+
+4. Tidy the simple tibble below. Do you need to spread or gather it? What are the variables?
+
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes",     NA,    10,
+  "no",      20,    12
+)
 
 **R for Data Science Exercise 12.4.3**
 
-Section 12.4.3: #1 and #2 only
+1. What do the extra and fill arguments do in separate()? Experiment with the various options for the following two toy datasets.
+
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"))
+
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"))
+
+2. Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE?
 
 **Final Question**
 
