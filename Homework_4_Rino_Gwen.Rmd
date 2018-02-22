@@ -10,11 +10,51 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ```{r load_packages, warning=FALSE, message=FALSE}
 library(tidyverse)
+library(nycflights13)
 ```
 
 **R for Data Science Exercise 5.6.7**
 
-Section 5.6.7: #2, #4, #5 and #6 only
+2. 
+```{r}
+not_cancelled <- flights %>% filter(!is.na(dep_delay), !is.na(arr_delay))
+
+# An approach that gives the same output as not_cancelled %>% count(dest)
+not_cancelled %>% group_by(dest) %>% summarize(n = n()) 
+
+# An approach that gives the same output as not_cancelled %>% count(tailnum, wt = distance)
+not_cancelled %>% group_by(tailnum) %>% summarize(n = sum(distance))
+```
+
+4. Look at the number of cancelled flights per day. Is there a pattern? Is the proportion of cancelled flights related to the average delay?
+
+```{r}
+# Number of flights cancelled per day of year
+flights %>% filter(is.na(dep_delay), is.na(arr_delay)) %>%
+  group_by(month, day) %>% count(day)
+# Create vector of conversions of time_hour to day of the year
+doy <- as.numeric(strftime(flights$time_hour, format = "%j"))
+# Mutate flights to add day_of_year variable
+flights.1 <- flights %>%
+  mutate(day_of_year = doy) 
+# Visualize number of cancelled flights per day
+cancelled <- flights.1 %>% filter(is.na(dep_delay), is.na(arr_delay)) %>%
+  add_count(month, day)
+ggplot(cancelled, aes(x = day_of_year, y = n)) + geom_point(alpha = .6)
+# Compare proportion of cancelled flights to average delay for each day
+summary <- flights.1 %>% group_by(day_of_year) %>%
+  summarize(
+    num_cancelled = sum(is.na(dep_delay) & is.na(arr_delay)),
+    prop_canc_flights = mean(is.na(dep_delay) & is.na(arr_delay)),
+    ave_delay = mean(dep_delay, na.rm = TRUE)
+  )
+# Visualize comparison of proportion of cancelled flights to average delay
+ggplot(summary, aes(x = ave_delay, y = prop_canc_flights)) + geom_point(alpha = .6)
+```
+
+5. Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers? Why/why not? (Hint: think about flights %>% group_by(carrier, dest) %>% summarise(n()))
+
+6. What does the sort argument to count() do. When might you use it?
 
 **R for Data Science Exercise 10.5**
 
