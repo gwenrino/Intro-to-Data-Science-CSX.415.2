@@ -26,7 +26,9 @@ not_cancelled %>% group_by(dest) %>% summarize(n = n())
 not_cancelled %>% group_by(tailnum) %>% summarize(n = sum(distance))
 ```
 
-4. Look at the number of cancelled flights per day. Is there a pattern? Is the proportion of cancelled flights related to the average delay?
+4. It's difficult to discern a pattern for the number of cancelled flights per day. There is a spike in cancelled flights on days 39 and 40, which suggests there may have been a winter storm.
+
+The second visualization suggests that as the average delay increases for a particular day, so does the number of cancelled flights. This makes intuitive sense!
 
 ```{r}
 # Number of flights cancelled per day of year
@@ -45,16 +47,31 @@ ggplot(cancelled, aes(x = day_of_year, y = n)) + geom_point(alpha = .6)
 summary <- flights.1 %>% group_by(day_of_year) %>%
   summarize(
     num_cancelled = sum(is.na(dep_delay) & is.na(arr_delay)),
-    prop_canc_flights = mean(is.na(dep_delay) & is.na(arr_delay)),
+    prop_cancelled = mean(is.na(dep_delay) & is.na(arr_delay)),
     ave_delay = mean(dep_delay, na.rm = TRUE)
   )
 # Visualize comparison of proportion of cancelled flights to average delay
-ggplot(summary, aes(x = ave_delay, y = prop_canc_flights)) + geom_point(alpha = .6)
+ggplot(summary, aes(x = ave_delay, y = prop_cancelled)) + geom_point(alpha = .6)
 ```
 
-5. Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers? Why/why not? (Hint: think about flights %>% group_by(carrier, dest) %>% summarise(n()))
+5. F9 is the carrier with the greatest mean dep_delay. However, F9 only flew to one destination (DEN), and only 685 flights. Other carriers different numbers of flights to different numbers of airports (for example, EV flew thousands of flights to 61 different airports). When I look at the third dataframe, sorted by mean_delay by carrier and destination, I can see that EV is the carrier that is most routinely late.
 
-6. What does the sort argument to count() do. When might you use it?
+```{r}
+flights %>% group_by(carrier) %>% 
+  summarize(mean_delay = mean(dep_delay, na.rm = TRUE)) %>%
+  arrange(mean_delay)
+
+flights %>% group_by(carrier, dest) %>% 
+  summarize(n())
+
+flights %>% group_by(dest, carrier) %>% 
+  summarize(
+    mean_delay = mean(dep_delay, na.rm = TRUE),
+    n = n()) %>%
+  arrange(mean_delay)
+```
+
+6. The sort argument to count() sorts the output in descending order of n. It provides a quick way to see not just the max and min, but the several highest occurring counts. I can imagine many situations when this would be useful!
 
 **R for Data Science Exercise 10.5**
 
