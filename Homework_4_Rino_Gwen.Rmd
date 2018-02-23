@@ -16,7 +16,7 @@ library(nycflights13)
 **R for Data Science Exercise 5.6.7**
 
 2. 
-```{r}
+```{r, eval=FALSE}
 not_cancelled <- flights %>% filter(!is.na(dep_delay), !is.na(arr_delay))
 
 # An approach that gives the same output as not_cancelled %>% count(dest)
@@ -54,15 +54,14 @@ summary <- flights.1 %>% group_by(day_of_year) %>%
 ggplot(summary, aes(x = ave_delay, y = prop_cancelled)) + geom_point(alpha = .6)
 ```
 
-5. F9 is the carrier with the greatest mean dep_delay. However, F9 only flew to one destination (DEN), and only 685 flights. Other carriers different numbers of flights to different numbers of airports (for example, EV flew thousands of flights to 61 different airports). When I look at the third dataframe, sorted by mean_delay and grouped by carrier and destination, I can see that EV is the carrier that is most routinely late.
+5. The first dataframe (below) shows that F9 is the carrier with the greatest mean dep_delay. However, the second dataframe shows that F9 only flew to one destination (DEN), and only 685 flights. Other carriers made different numbers of flights to different numbers of airports (for example, EV flew thousands of flights to 61 different airports). When I look at the third dataframe, sorted by mean_delay and grouped by carrier and destination, I can see that EV is the carrier that is most routinely late.
 
 ```{r}
 flights %>% group_by(carrier) %>% 
   summarize(mean_delay = mean(dep_delay, na.rm = TRUE)) %>%
   arrange(mean_delay)
 
-flights %>% group_by(carrier, dest) %>% 
-  summarize(n())
+flights %>% group_by(carrier, dest) %>% summarize(n())
 
 flights %>% group_by(dest, carrier) %>% 
   summarize(
@@ -71,13 +70,11 @@ flights %>% group_by(dest, carrier) %>%
   arrange(mean_delay)
 ```
 
-6. The sort argument to count() sorts the output in descending order of n. It provides a quick way to see not just the max and min, but the several highest occurring counts. I can imagine many situations when this would be useful!
+6. The sort argument to count() sorts the output in descending order of n. It provides a quick way to see not just the max and min, but the several highest and lowest occurring counts. This could give you ideas for next steps in an analysis (e.g. what do the several highest count or several lowest count groups have in common?).
 
 **R for Data Science Exercise 10.5**
 
-Section 10.5: #1, #2, #3 and #6 only
-
-1. How can you tell if an object is a tibble? (Hint: try printing mtcars, which is a regular data frame).
+1. You can tell an object is a tibble by printing it (it returns the classification "a tibble"), or by using class(). When printed in the console, tibbles are easier to read than data frames because they do not wrap columns around and print them below. They also include the type of data in each column, which data frames do not. (Tibbles and data frames seem to be equally easy to read in RMarkdown.)
 
 2. Compare and contrast the following operations on a data.frame and equivalent tibble. What is different? Why might the default data frame behaviours cause you frustration?
 
