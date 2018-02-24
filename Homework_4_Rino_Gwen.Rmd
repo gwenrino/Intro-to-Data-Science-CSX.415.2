@@ -76,12 +76,27 @@ flights %>% group_by(dest, carrier) %>%
 
 1. You can tell an object is a tibble by printing it (it returns the classification "a tibble"), or by using class(). When printed in the console, tibbles are easier to read than data frames because they do not wrap columns around and print them below. They also include the type of data in each column, which data frames do not. (Tibbles and data frames seem to be equally easy to read in RMarkdown.)
 
-2. Compare and contrast the following operations on a data.frame and equivalent tibble. What is different? Why might the default data frame behaviours cause you frustration?
-
+2. The data frame subsetting `df$x` extracts the data in column `xyz`, whereas the tibble subsetting `tb$x` returns an error (it distinguishes `x` from `xyz`).
+```{r}
 df <- data.frame(abc = 1, xyz = "a")
+tb <- tibble(abc = 1, xyz = "a")
 df$x
+tb$x
+```
+
+The data frame subsetting `df[, "xyz"]` returns the contents of column `xyz` as a factor, whereas the tibble subsetting `tb[, "xyz"]` returns it as a tibble.
+```{r}
 df[, "xyz"]
+tb[, "xyz"]
+```
+
+The data frame subsetting `df[, c("abc", "xyz")]` returns a data frame, while the tibble subsetting `tb[, c("abc", "xyz")]` returns a tibble. The data types of column `xyz` in the two outcomes are different (factor for the data frame, character for the tibble).
+```{r}
 df[, c("abc", "xyz")]
+tb[, c("abc", "xyz")]
+```
+
+The data frame defaults could be frustrating because a typo in subsetting a column name wouldn't be caught so you could easily make a mistake without knowing it. Also, it could be frustrating that the type of object being returned changes. When you're working with a tibble, the results will always also be a tibble.
 
 3. If you have the name of a variable stored in an object, e.g. var <- "mpg", how can you extract the reference variable from a tibble?
 
