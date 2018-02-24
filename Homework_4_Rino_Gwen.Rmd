@@ -96,11 +96,15 @@ df[, c("abc", "xyz")]
 tb[, c("abc", "xyz")]
 ```
 
-The data frame defaults could be frustrating because a typo in subsetting a column name wouldn't be caught so you could easily make a mistake without knowing it. Also, it could be frustrating that the type of object being returned changes. When you're working with a tibble, the results will always also be a tibble.
+The data frame defaults could be frustrating because a typo in subsetting a column name wouldn't be caught so you could easily make a mistake without knowing it. Also, it could be frustrating that the type of object being returned changes. When you're working with a tibble, the results will always also be a tibble, so you don't have to consider the class of object.
 
-3. If you have the name of a variable stored in an object, e.g. var <- "mpg", how can you extract the reference variable from a tibble?
+3. You can extract a reference variable named as an object from a tibble as coded here:
+```{r, eval = FALSE}
+vari <- "carrier"
+flights[vari]
+```
 
-6. What option controls how many additional column names are printed at the footer of a tibble?
+6. The option `n_extra` controls how many additional column names are printed at the footer of a tibble.
 
 **R for Data Science Exercise 12.3.3**
 
