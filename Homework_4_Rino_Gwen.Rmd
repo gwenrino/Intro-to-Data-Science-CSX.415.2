@@ -28,7 +28,7 @@ not_cancelled %>% group_by(tailnum) %>% summarize(n = sum(distance))
 
 4. It's difficult to discern a pattern for the number of cancelled flights per day. There is a spike in cancelled flights on days 39 and 40, which suggests there may have been a winter storm.
 
-The second visualization suggests that as the average delay increases for a particular day, so does the number of cancelled flights. This makes intuitive sense!
+The second visualization (below) suggests that as the average delay increases for a particular day, so does the number of cancelled flights. This makes intuitive sense!
 
 ```{r}
 # Number of flights cancelled per day of year
@@ -51,10 +51,11 @@ summary <- flights.1 %>% group_by(day_of_year) %>%
     ave_delay = mean(dep_delay, na.rm = TRUE)
   )
 # Visualize comparison of proportion of cancelled flights to average delay
-ggplot(summary, aes(x = ave_delay, y = prop_cancelled)) + geom_point(alpha = .6)
+ggplot(summary, aes(x = ave_delay, y = prop_cancelled)) + geom_point(alpha = .6) + 
+  geom_smooth(se=FALSE)
 ```
 
-5. The first dataframe (below) shows that F9 is the carrier with the greatest mean dep_delay. However, the second dataframe shows that F9 only flew to one destination (DEN), and only 685 flights. Other carriers made different numbers of flights to different numbers of airports (for example, EV flew thousands of flights to 61 different airports). When I look at the third dataframe, sorted by mean_delay and grouped by carrier and destination, I can see that EV is the carrier that is most routinely late.
+5. The first dataframe (below) shows that F9 is the carrier with the greatest mean dep_delay. However, the second dataframe shows that F9 only flew to one destination (DEN), and only 685 flights. Other carriers made different numbers of flights to different numbers of airports. For example, EV flew thousands of flights to 61 different airports. When I look at the third dataframe, sorted by mean_delay and grouped by carrier and destination, I can see that EV is the carrier that is most routinely late regardless of destination.
 
 ```{r}
 flights %>% group_by(carrier) %>% 
@@ -76,7 +77,7 @@ flights %>% group_by(dest, carrier) %>%
 
 1. You can tell an object is a tibble by printing it (it returns the classification "a tibble"), or by using class(). When printed in the console, tibbles are easier to read than data frames because they do not wrap columns around and print them below. They also include the type of data in each column, which data frames do not. (Tibbles and data frames seem to be equally easy to read in RMarkdown.)
 
-2. The data frame subsetting `df$x` extracts the data in column `xyz`, whereas the tibble subsetting `tb$x` returns an error (it distinguishes `x` from `xyz`).
+2. The data frame subsetting `df$x` extracts the data in column `xyz`, whereas the tibble subsetting `tb$x` returns an error because it distinguishes `x` from `xyz`.
 ```{r}
 df <- data.frame(abc = 1, xyz = "a")
 tb <- tibble(abc = 1, xyz = "a")
@@ -96,7 +97,7 @@ df[, c("abc", "xyz")]
 tb[, c("abc", "xyz")]
 ```
 
-The data frame defaults could be frustrating because a typo in subsetting a column name wouldn't be caught so you could easily make a mistake without knowing it. Also, it could be frustrating that the type of object being returned changes. When you're working with a tibble, the results will always also be a tibble, so you don't have to consider the class of object.
+The data frame defaults could be frustrating because a typo in subsetting a column name wouldn't throw an error so you could easily make a mistake without knowing it. Also, it could be frustrating that the type of object being returned changes. When you're working with a tibble, the results will always also be a tibble, so you don't have to consider the class of object as you work.
 
 3. You can extract a reference variable named as an object from a tibble as coded here:
 ```{r, eval = FALSE}
@@ -108,14 +109,11 @@ flights[vari]
 
 **R for Data Science Exercise 12.3.3**
 
-2. Why does this code fail?
+2. The code fails because the column names "1999" and "2000" are non-syntactic names and therefore must be surrounded by backticks.
 
-table4a %>% 
-  gather(1999, 2000, key = "year", value = "cases")
-#> Error in combine_vars(vars, ind_list): Position must be between 0 and n
+3. Spreading the given tibble fails because "Phillip Woods" has two different values for "age", presumably because there are two different people in this data set with the same name. You could solve this problem by adding a new column that distinguishes Phillip Woods #1 from Phillip Woods #2. See code below:
 
-3. Why does spreading this tibble fail? How could you add a new column to fix the problem?
-
+```{r}
 people <- tribble(
   ~name,             ~key,    ~value,
   #-----------------|--------|------
@@ -126,25 +124,51 @@ people <- tribble(
   "Jessica Cordero", "height",   156
 )
 
-4. Tidy the simple tibble below. Do you need to spread or gather it? What are the variables?
+people %>% mutate(ID = c(1,1,2,1,1)) %>% spread(key, value)
+```
 
+4. The variables are pregnant (Y/N), sex (M/F), and some value (probably count). The "sex" variable needs to be gathered: 
+
+```{r}
 preg <- tribble(
   ~pregnant, ~male, ~female,
   "yes",     NA,    10,
   "no",      20,    12
 )
 
+preg %>% gather("male", "female", key = "sex", value = "n")
+```
+
 **R for Data Science Exercise 12.4.3**
 
-1. What do the extra and fill arguments do in separate()? Experiment with the various options for the following two toy datasets.
+1. When `sep` is a character vector, `extra` controls what happens when there are too many pieces and `fill` controls what happens when there aren't enough pieces. See below for examples:
 
+```{r}
+# Extra = "warn" (this is the default) gives a warning message and drops extra values
 tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
   separate(x, c("one", "two", "three"))
+# Extra = "drop" does the same thing without a warning
 
+# Extra = "merge" only splits at most length (into) times
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"), extra = "merge")
+
+# Fill = "warn" (default) gives a warning and fills from the right
 tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
   separate(x, c("one", "two", "three"))
+# Fill = "right" does the same thing without a warning
 
-2. Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE?
+# Fill = "left" fills with missing values from the left
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"), fill = "left")
+```
+
+2. The default for `remove` in `unite()` and `separate()` is TRUE. This removes from the output data frame the original columns that were transformed by the function. You would set it to FALSE if you wanted both the original columns and the transformed ones in your output data frame, as in the example below:
+
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"), remove = FALSE)
+```
 
 **Final Question**
 
