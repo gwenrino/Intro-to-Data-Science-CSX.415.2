@@ -26,9 +26,9 @@ not_cancelled %>% group_by(dest) %>% summarize(n = n())
 not_cancelled %>% group_by(tailnum) %>% summarize(n = sum(distance))
 ```
 
-4. It's difficult to discern a pattern for the number of cancelled flights per day. There is a spike in cancelled flights on days 39 and 40, which suggests there may have been a winter storm.
+4.a. Examination of the number of cancelled flights per day.
 
-The second visualization (below) suggests that as the average delay increases for a particular day, so does the number of cancelled flights. This makes intuitive sense!
+It's difficult to discern a pattern for the number of cancelled flights per day. There is a big spike in cancelled flights on days 39 and 40, which suggests there may have been a winter storm or strike or other large scale event.
 
 ```{r}
 # Number of flights cancelled per day of year
@@ -43,6 +43,12 @@ flights.1 <- flights %>%
 cancelled <- flights.1 %>% filter(is.na(dep_delay), is.na(arr_delay)) %>%
   add_count(month, day)
 ggplot(cancelled, aes(x = day_of_year, y = n)) + geom_point(alpha = .6)
+```
+
+4.b. Examination of possible association between average delay and proportion of cancelled flights.
+
+The visualization below suggests that as the average delay increases for a particular day, so does the number of cancelled flights. This makes intuitive sense to anyone with experience flying!
+```{r}
 # Compare proportion of cancelled flights to average delay for each day
 summary <- flights.1 %>% group_by(day_of_year) %>%
   summarize(
@@ -55,12 +61,12 @@ ggplot(summary, aes(x = ave_delay, y = prop_cancelled)) + geom_point(alpha = .6)
   geom_smooth(se=FALSE)
 ```
 
-5. The first dataframe (below) shows that F9 is the carrier with the greatest mean dep_delay. However, the second dataframe shows that F9 only flew to one destination (DEN), and only 685 flights. Other carriers made different numbers of flights to different numbers of airports. For example, EV flew thousands of flights to 61 different airports. When I look at the third dataframe, sorted by mean_delay and grouped by carrier and destination, I can see that EV is the carrier that is most routinely late regardless of destination.
+5. I've answered this question considering departure delays, not arrival delays. The first data frame below shows that F9 is the carrier with the greatest mean dep_delay. However, the second data frame shows that F9 only flew to one destination (DEN), and only 685 flights. Other carriers made different numbers of flights to different airports, so mean dep_delay is not really comparable between carriers. When I look at the third dataframe, sorted by mean_delay in descending order and grouped by carrier and destination, I can see that EV is the carrier that is most routinely late regardless of destination.
 
 ```{r}
 flights %>% group_by(carrier) %>% 
   summarize(mean_delay = mean(dep_delay, na.rm = TRUE)) %>%
-  arrange(mean_delay)
+  arrange(desc(mean_delay))
 
 flights %>% group_by(carrier, dest) %>% summarize(n())
 
@@ -68,36 +74,34 @@ flights %>% group_by(dest, carrier) %>%
   summarize(
     mean_delay = mean(dep_delay, na.rm = TRUE),
     n = n()) %>%
-  arrange(mean_delay)
+  arrange(desc(mean_delay)) %>% 
+  print(n=50)
 ```
 
-6. The sort argument to count() sorts the output in descending order of n. It provides a quick way to see not just the max and min, but the several highest and lowest occurring counts. This could give you ideas for next steps in an analysis (e.g. what do the several highest count or several lowest count groups have in common?).
+6. The sort argument to `count()` sorts the output in descending order of n. It provides a quick way to see not just the max and min, but the several highest and lowest occurring counts. This could give you ideas for next steps in an analysis (e.g. what do the several highest count or several lowest count groups have in common?).
 
 **R for Data Science Exercise 10.5**
 
-1. You can tell an object is a tibble by printing it (it returns the classification "a tibble"), or by using class(). When printed in the console, tibbles are easier to read than data frames because they do not wrap columns around and print them below. They also include the type of data in each column, which data frames do not. (Tibbles and data frames seem to be equally easy to read in RMarkdown.)
+1. You can tell an object is a tibble by printing it (it returns the classification "a tibble"), or by using `class()`. You can also tell it's a tibble when printed in the console, because tibbles are easier to read than data frames (they do not wrap columns around and print them below). They also name the type of data in each column, which data frames do not.
 
-2. The data frame subsetting `df$x` extracts the data in column `xyz`, whereas the tibble subsetting `tb$x` returns an error because it distinguishes `x` from `xyz`.
+2. The data frame defaults could be frustrating because a typo in subsetting a column name wouldn't throw an error so you could easily make a mistake without knowing it. Also, it could be frustrating that the type of object being returned changes. When you're working with a tibble, the results will always also be a tibble, so you don't have to consider the class of object as you work.
+
 ```{r}
 df <- data.frame(abc = 1, xyz = "a")
+df$x # Does not distinguish x from xyz, so this code returns the data from column xyz
 tb <- tibble(abc = 1, xyz = "a")
-df$x
-tb$x
+tb$x # Does distinguish x from xyz, so this code returns an error
 ```
 
-The data frame subsetting `df[, "xyz"]` returns the contents of column `xyz` as a factor, whereas the tibble subsetting `tb[, "xyz"]` returns it as a tibble.
 ```{r}
-df[, "xyz"]
-tb[, "xyz"]
+df[, "xyz"] # Returns contents of column xyz as a factor
+tb[, "xyz"] # Returns contents of column xyz as a tibble
 ```
 
-The data frame subsetting `df[, c("abc", "xyz")]` returns a data frame, while the tibble subsetting `tb[, c("abc", "xyz")]` returns a tibble. The data types of column `xyz` in the two outcomes are different (factor for the data frame, character for the tibble).
 ```{r}
-df[, c("abc", "xyz")]
-tb[, c("abc", "xyz")]
+df[, c("abc", "xyz")] # Returns a data frame with contents of column xyz as a factor
+tb[, c("abc", "xyz")] # Returns a tibble with contents of column xyz as a character
 ```
-
-The data frame defaults could be frustrating because a typo in subsetting a column name wouldn't throw an error so you could easily make a mistake without knowing it. Also, it could be frustrating that the type of object being returned changes. When you're working with a tibble, the results will always also be a tibble, so you don't have to consider the class of object as you work.
 
 3. You can extract a reference variable named as an object from a tibble as coded here:
 ```{r, eval = FALSE}
@@ -109,9 +113,9 @@ flights[vari]
 
 **R for Data Science Exercise 12.3.3**
 
-2. The code fails because the column names "1999" and "2000" are non-syntactic names and therefore must be surrounded by backticks.
+2. The code fails because the column names "1999" and "2000" are non-syntactic and therefore must be surrounded by backticks.
 
-3. Spreading the given tibble fails because "Phillip Woods" has two different values for "age", presumably because there are two different people in this data set with the same name. You could solve this problem by adding a new column that distinguishes Phillip Woods #1 from Phillip Woods #2. See code below:
+3. Spreading the given tibble fails because "Phillip Woods" has two different values for "age", presumably because there are two different people in this data set named Phillip Woods. You could solve this problem by adding a new column that distinguishes Phillip Woods #1 from Phillip Woods #2. See code below:
 
 ```{r}
 people <- tribble(
@@ -141,29 +145,29 @@ preg %>% gather("male", "female", key = "sex", value = "n")
 
 **R for Data Science Exercise 12.4.3**
 
-1. When `sep` is a character vector, `extra` controls what happens when there are too many pieces and `fill` controls what happens when there aren't enough pieces. See below for examples:
+1. When `sep` is a character vector, `extra` controls what happens when there are too many pieces and `fill` controls what happens when there aren't enough pieces to fill out the new columns. See below for examples:
 
 ```{r}
-# Extra = "warn" (this is the default) gives a warning message and drops extra values
+# extra = "warn" (this is the default) gives a warning message and drops extra values
+# extra = "drop" does the same thing without a warning
 tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
   separate(x, c("one", "two", "three"))
-# Extra = "drop" does the same thing without a warning
 
-# Extra = "merge" only splits at most length (into) times
+# extra = "merge" only splits at most the number of times as there are new columns and puts whatever is left over into the last column
 tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
   separate(x, c("one", "two", "three"), extra = "merge")
 
-# Fill = "warn" (default) gives a warning and fills from the right
+# fill = "warn" (default) gives a warning and fills with NA from the right
+# fill = "right" does the same thing without a warning
 tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
   separate(x, c("one", "two", "three"))
-# Fill = "right" does the same thing without a warning
 
-# Fill = "left" fills with missing values from the left
+# fill = "left" fills with NA from the left
 tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
   separate(x, c("one", "two", "three"), fill = "left")
 ```
 
-2. The default for `remove` in `unite()` and `separate()` is TRUE. This removes from the output data frame the original columns that were transformed by the function. You would set it to FALSE if you wanted both the original columns and the transformed ones in your output data frame, as in the example below:
+2. The default for `remove` in `unite()` and `separate()` is TRUE. This removes from the output tibble the original columns that were transformed by the function. You would set it to FALSE if you wanted both the original columns and the transformed ones in your output tibble, as in the example below:
 
 ```{r}
 table3 %>% 
@@ -171,6 +175,12 @@ table3 %>%
 ```
 
 **Final Question**
+
+- Download the baby_names.txt file from Canvas.
+- Load this file into R correctly and take a glimpse of the output.
+- Export this file as an rds file and call it ‘baby_names.rds’.
+- Reload the baby_names.rds file and take another glimpse.
+- Show all of your code and the output. There should be two data import lines of code, one data export line of code, and two glimpses of the data.
 
 ```{r}
 baby_names <- read_delim("baby_names.txt", delim = "|") # Load baby_names.txt
