@@ -8,23 +8,67 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r load_packages, warning=FALSE, message=FALSE}
+library(tidyverse)
 ```
 
-## Including Plots
+**GITHUB LINK**
 
-You can also embed plots, for example:
+**THE TIDYVERSE**
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+Name the package and two functions associated with each task:
+```{r, echo=FALSE}
+tibble(
+  Task = c("Plotting", "Munging/wrangling", "Reshaping", "Importing/exporting"),
+  Package = c("ggplot", "dplyr", "tidyr", "readr"),
+  Function1 = c("geom_point", "filter", "gather", "read_delim"),
+  Function2 = c("geom_smooth", "summarize", "spread", "read_csv")
+)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+**R BASICS**
+
+1. Fixed code with only one change:
+```{r}
+My_data.name___is.too00ooLong <- c( 1 , 2   , 3 )
+```
+2. Fixed code:
+```{r}
+my_string <- c('has', 'an', 'error', 'in', 'it')
+```
+3. As entered, three of the elements of `my_vector` are numbers and two are characters. But vectors can only contain one type of element, so the numbers are converted to characters.
+
+**DATA IMPORT/EXPORT**
+
+Demonstration of import/export:
+```{r}
+rail_trail <- read_delim("rail_trail.txt", delim = "|") # Load rail_trail.txt
+glimpse(rail_trail)
+
+saveRDS(rail_trail, file = "rail_trail.rds") # Export rail_trail as rds file
+
+rail_trail_rds <- readRDS(file = "rail_trail.rds") # Reload rail_trail.rds
+glimpse(rail_trail_rds)
+```
+
+**VISUALIZATION**
+
+1.
+2.
+3.
+
+**DATA MUNGING AND WRANGLING**
+
+1.
+2.
+3.
+
+**EDA**
+
+1.
+2.
+3.
+4.
+5.
+6.
+
