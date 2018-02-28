@@ -32,7 +32,7 @@ It's difficult to discern a pattern for the number of cancelled flights per day.
 
 ```{r}
 # Number of flights cancelled per day of year
-flights %>% filter(is.na(dep_delay), is.na(arr_delay)) %>%
+flights %>% filter(is.na(dep_delay) | is.na(arr_delay)) %>%
   group_by(month, day) %>% count(day)
 # Create vector of conversions of time_hour to day of the year
 doy <- as.numeric(strftime(flights$time_hour, format = "%j"))
@@ -40,9 +40,10 @@ doy <- as.numeric(strftime(flights$time_hour, format = "%j"))
 flights.1 <- flights %>%
   mutate(day_of_year = doy) 
 # Visualize number of cancelled flights per day
-cancelled <- flights.1 %>% filter(is.na(dep_delay), is.na(arr_delay)) %>%
-  add_count(month, day)
-ggplot(cancelled, aes(x = day_of_year, y = n)) + geom_point(alpha = .6)
+cancelled <- flights.1 %>% filter(is.na(dep_delay) | is.na(arr_delay)) %>%
+  add_count(month, day) %>% select(day_of_year, n) %>% distinct()
+ggplot(cancelled, aes(x = day_of_year, y = n)) + geom_point(alpha = .6) + 
+  geom_smooth(span = .01, se = FALSE)
 ```
 
 4.b. Examination of possible association between average delay and proportion of cancelled flights.
