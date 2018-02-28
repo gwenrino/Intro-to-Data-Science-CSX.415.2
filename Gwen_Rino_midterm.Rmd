@@ -12,33 +12,34 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-**GITHUB LINK**
+**GITHUB LINK**  
 
-**THE TIDYVERSE**
+**THE TIDYVERSE**  
 
-Name the package and two functions associated with each task:
 ```{r, echo=FALSE}
-tibble(
+library(knitr)
+table <- tibble(
   Task = c("Plotting", "Munging/wrangling", "Reshaping", "Importing/exporting"),
   Package = c("ggplot", "dplyr", "tidyr", "readr"),
   Function1 = c("geom_point", "filter", "gather", "read_delim"),
   Function2 = c("geom_smooth", "summarize", "spread", "read_csv")
 )
+kable(table, caption = "Name the package and two functions associated with each task")
 ```
 
-**R BASICS**
+**R BASICS**  
 
-1. Fixed code with only one change:
+1. Code fixed with only one change
 ```{r}
 My_data.name___is.too00ooLong <- c( 1 , 2   , 3 )
 ```
-2. Fixed code:
+2. Code fixed
 ```{r}
 my_string <- c('has', 'an', 'error', 'in', 'it')
 ```
-3. As entered, three of the elements of `my_vector` are numbers and two are characters. But vectors can only contain one type of element, so the numbers are converted to characters.
+3. As coded, three of the elements of `my_vector` are numbers and two are characters. But vectors can only contain one type of element, so the numbers are converted to characters.
 
-**DATA IMPORT/EXPORT**
+**DATA IMPORT/EXPORT**  
 
 Demonstration of import/export:
 ```{r}
@@ -51,24 +52,97 @@ rail_trail_rds <- readRDS(file = "rail_trail.rds") # Reload rail_trail.rds
 glimpse(rail_trail_rds)
 ```
 
-**VISUALIZATION**
+**VISUALIZATION**  
 
-1.
+1. 
+
 2.
+```{r}
+ggplot(diamonds, aes(x=cut, y=carat)) + 
+  geom_boxplot(aes(fill=color), position = "identity") + 
+  xlab("CUT OF DIAMOND") + 
+  ylab("CARAT OF DIAMOND") + 
+  coord_flip()
+```
+
 3.
 
-**DATA MUNGING AND WRANGLING**
+**DATA MUNGING AND WRANGLING**  
 
-1.
-2.
-3.
+1. The data in the column "type" needs to be spread, as shown here:
+```{r}
+spread(table2, key = type, value = count)
+```
 
-**EDA**
+2. Here is the code that adds a new column to the diamonds data set called price_per_carat that shows the price of each diamond per carat.
 
-1.
-2.
-3.
-4.
-5.
-6.
+```{r, eval=FALSE}
+diamonds %>% mutate(price_per_carat = price/carat)
+```
+
+3. The output below shows how many diamonds, and what proportion, have a price > 10000 and a carat < 1.5.
+
+The results make sense. Only a tiny proportion of the diamonds in the dataset are both relatively small (<1.5 carats) and also relatively expensive (>10000). However, a higher proportion of the better cut diamonds fall into this category than the poorer cut diamonds.
+
+Do we need to be wary of any of these numbers? Why?
+
+```{r}
+diamonds %>% group_by(cut) %>% 
+  summarize(
+    count = sum(price > 10000 & carat < 1.5),
+    proportion = mean(price > 10000 & carat < 1.5)
+  )
+```
+
+**EDA**  
+
+```{r}
+txhousing
+```
+
+1. This data is from the beginning of 2000 to halfway through 2015.
+
+```{r}
+range(txhousing$date)
+```
+
+2. 46 cities are represented.
+
+```{r}
+nrow(distinct(txhousing, city))
+```
+
+3. The highest number of sales occurred in Houston in July 2015.
+
+```{r}
+txhousing %>% group_by(city, month, year) %>%
+  arrange(desc(sales))
+```
+
+4. I expect listings and sales to rise and fall together.
+
+The visualization below affirms my assumption.
+
+```{r}
+ggplot(txhousing, aes(x=listings, y=sales)) +
+  geom_point(alpha=.6)
+```
+
+5. See table below for the  proportion of sales missing for each city.
+
+```{r}
+txhousing %>% group_by(city) %>% 
+  summarize(proportion = mean(is.na(sales)))
+```
+
+6. Looking at only the cities and months with greater than 500 sales:
+
+```{r}
+bigsales <- txhousing %>% filter(sales > 500)
+
+```
+
+Are the distributions of the median sales price (column name median), when grouped by city, different? The same? Show your work.
+Any cities that stand out that you’d want to investigate further?
+Why might we want to filter out all cities and months with sales less than 500?
 
