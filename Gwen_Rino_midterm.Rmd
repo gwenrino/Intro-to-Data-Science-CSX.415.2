@@ -35,9 +35,9 @@ My_data.name___is.too00ooLong <- c( 1 , 2   , 3 )
 ```
 2. Code fixed
 ```{r}
-my_string <- c('has', 'an', 'error', 'in', 'it')
+my_string <- c('had', 'two', 'errors', 'in', 'it')
 ```
-3. As coded, three of the elements of `my_vector` are numbers and two are characters. But vectors can only contain one type of element, so the numbers are converted to characters.
+3. As coded, three of the elements of `my_vector` are integers and two are characters. But vectors can only contain one type of element, so the integers are converted to characters.
 
 **DATA IMPORT/EXPORT**  
 
@@ -54,7 +54,13 @@ glimpse(rail_trail_rds)
 
 **VISUALIZATION**  
 
-1. 
+1. Three critiques of the graphic:
+
+a. This graph requires the viewer to compare areas between the bubbles, which is difficult. This problem is somewhat mitigated by the percentages printed on the bubbles.
+
+b. The color choices on this graph seem to be completely random. It is unclear why the age group bubbles don't have color but the gender group bubbles do.
+
+c. If the text were bigger/bolder, it would draw attention better to the information the graph intends to convey. The names of the groups do not stand out as clearly as would be ideal.
 
 2.
 ```{r}
@@ -65,7 +71,7 @@ ggplot(diamonds, aes(x=cut, y=carat)) +
   coord_flip()
 ```
 
-3.
+3. The previous graphic is not very useful. We can make it much more useful by changing one thing about it. Make the change and plot it again.
 
 **DATA MUNGING AND WRANGLING**  
 
@@ -80,17 +86,18 @@ spread(table2, key = type, value = count)
 diamonds %>% mutate(price_per_carat = price/carat)
 ```
 
-3. The output below shows how many diamonds, and what proportion, have a price > 10000 and a carat < 1.5.
+3. The output below shows how many diamonds of each cut there are total, and also how many and what proportion of these have a price > 10,000 and a carat < 1.5.
 
-The results make sense. Only a tiny proportion of the diamonds in the dataset are both relatively small (<1.5 carats) and also relatively expensive (>10000). However, a higher proportion of the better cut diamonds fall into this category than the poorer cut diamonds.
+The results make sense. Only a tiny proportion of the diamonds in the dataset are both relatively small (<1.5 carats) and also relatively expensive (>10,000). However, a higher proportion of the better cut diamonds fall into this category than the poorer cut diamonds.
 
-Do we need to be wary of any of these numbers? Why?
+The number of diamonds that meet the >$10,000 & <1.5 carat requirements in each group may be misleading because the total number of diamonds in each group varies so much. But the proportion of diamonds that meet the requirements accounts for the differences in group size.
 
 ```{r}
 diamonds %>% group_by(cut) %>% 
   summarize(
-    count = sum(price > 10000 & carat < 1.5),
-    proportion = mean(price > 10000 & carat < 1.5)
+    total_count = n(),
+    group_count = sum(price > 10000 & carat < 1.5),
+    group_proportion = mean(price > 10000 & carat < 1.5)
   )
 ```
 
