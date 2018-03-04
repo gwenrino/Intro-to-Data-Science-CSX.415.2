@@ -11,10 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r load_packages, warning=FALSE, message=FALSE}
 library(tidyverse)
 ```
+***
+## GITHUB LINK  
 
-**GITHUB LINK**  
-
-**THE TIDYVERSE**  
+***
+## THE TIDYVERSE 
 
 ```{r, echo=FALSE}
 library(knitr)
@@ -27,7 +28,8 @@ table <- tibble(
 kable(table, caption = "Name the package and two functions associated with each task")
 ```
 
-**R BASICS**  
+***
+## R BASICS  
 
 1. Code fixed with only one change
 ```{r}
@@ -39,7 +41,8 @@ my_string <- c('had', 'two', 'errors', 'in', 'it')
 ```
 3. As coded, three of the elements of `my_vector` are integers and two are characters. But vectors can only contain one type of element, so the integers are converted to characters.
 
-**DATA IMPORT/EXPORT**  
+***
+## DATA IMPORT/EXPORT  
 
 Demonstration of import/export:
 ```{r}
@@ -52,7 +55,8 @@ rail_trail_rds <- readRDS(file = "rail_trail.rds") # Reload rail_trail.rds
 glimpse(rail_trail_rds)
 ```
 
-**VISUALIZATION**  
+***
+## VISUALIZATION  
 
 1. Three critiques of the graphic:
 
@@ -71,9 +75,18 @@ ggplot(diamonds, aes(x=cut, y=carat)) +
   coord_flip()
 ```
 
-3. The previous graphic is not very useful. We can make it much more useful by changing one thing about it. Make the change and plot it again.
+3. It is much easier to visualize and compare the distributions of the carat variable for each combination of diamond cut and color if the graph uses the "dodge" position instead of "identity."
 
-**DATA MUNGING AND WRANGLING**  
+```{r}
+ggplot(diamonds, aes(x=cut, y=carat)) + 
+  geom_boxplot(aes(fill=color), position = "dodge") + 
+  xlab("CUT OF DIAMOND") + 
+  ylab("CARAT OF DIAMOND") + 
+  coord_flip()
+```
+
+***
+## DATA MUNGING AND WRANGLING  
 
 1. The data in the column "type" needs to be spread, as shown here:
 ```{r}
@@ -101,7 +114,8 @@ diamonds %>% group_by(cut) %>%
   )
 ```
 
-**EDA**  
+***
+## EDA  
 
 ```{r}
 txhousing
@@ -146,10 +160,24 @@ txhousing %>% group_by(city) %>%
 
 ```{r}
 bigsales <- txhousing %>% filter(sales > 500)
-
 ```
 
-Are the distributions of the median sales price (column name median), when grouped by city, different? The same? Show your work.
-Any cities that stand out that you’d want to investigate further?
-Why might we want to filter out all cities and months with sales less than 500?
+a. The distributions of the median sales price when grouped by city differ quite a bit. The table below shows that the city with the highest median price was Collin County ($196,000), and the city with the lowest median price was Ft. Worth ($114,600). The faceted graph below shows the distribution of median sales prices for each city. The histograms vary a lot in shape. For example, Bay Area is unimodal and nearly symmetrical, Dallas is unimodal and skews right, Austin is bimodal.
+
+b. Any cities that stand out that you’d want to investigate further?
+
+c. Why might we want to filter out all cities and months with sales less than 500?
+
+```{r}
+# Average median price for "big sale city-months" by city 
+bigsales %>% group_by(city) %>% summarize(median = median(median)) %>% 
+  arrange(desc(median)) 
+
+# Visualize spread of median prices by city
+ggplot(bigsales, aes(x = median)) + 
+  geom_histogram() + 
+  facet_wrap(~ city) 
+```
+
+
 
