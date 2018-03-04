@@ -13,6 +13,7 @@ library(tidyverse)
 ```
 ***
 ## GITHUB LINK  
+[https://github.com/gwenrino/compscix-415-2-assignments]
 
 ***
 ## THE TIDYVERSE 
