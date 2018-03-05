@@ -38,9 +38,9 @@ My_data.name___is.too00ooLong <- c( 1 , 2   , 3 )
 ```
 2. Code fixed
 ```{r}
-my_string <- c('had', 'two', 'errors', 'in', 'it')
+my_string <- c('had', 'two', 'errors', 'in', 'it', 'but', 'works', 'now')
 ```
-3. As coded, three of the elements of `my_vector` are integers and two are characters. But vectors can only contain one type of element, so the integers are converted to characters.
+3. As coded, three of the elements of `my_vector` are integers and two are characters. But vectors can only contain one type of element, so R converted the integers to characters.
 
 ***
 ## DATA IMPORT/EXPORT  
@@ -94,7 +94,7 @@ ggplot(diamonds, aes(x=cut, y=carat)) +
 spread(table2, key = type, value = count)
 ```
 
-2. Here is the code that adds a new column to the diamonds data set called price_per_carat that shows the price of each diamond per carat.
+2. Here is the code that adds a new column to the diamonds data set called `price_per_carat` that shows the price of each diamond per carat.
 
 ```{r, eval=FALSE}
 diamonds %>% mutate(price_per_carat = price/carat)
@@ -102,7 +102,7 @@ diamonds %>% mutate(price_per_carat = price/carat)
 
 3. The output below shows how many diamonds of each cut there are total, and also how many and what proportion of these have a price > 10,000 and a carat < 1.5.
 
-The results make sense. Only a tiny proportion of the diamonds in the dataset are both relatively small (<1.5 carats) and also relatively expensive (>10,000). However, a higher proportion of the better cut diamonds fall into this category than the poorer cut diamonds.
+The results make sense. Only a tiny proportion of the diamonds in the dataset are both relatively small (<1.5 carats) and also relatively expensive (>$10,000). However, a higher proportion of the better cut diamonds fall into this category than the poorer cut diamonds.
 
 The number of diamonds that meet the >$10,000 & <1.5 carat requirements in each group may be misleading because the total number of diamonds in each group varies so much. But the proportion of diamonds that meet the requirements accounts for the differences in group size.
 
@@ -116,11 +116,7 @@ diamonds %>% group_by(cut) %>%
 ```
 
 ***
-## EDA  
-
-```{r}
-txhousing
-```
+## EDA    
 
 1. This data is from the beginning of 2000 to halfway through 2015.
 
@@ -134,16 +130,14 @@ range(txhousing$date)
 nrow(distinct(txhousing, city))
 ```
 
-3. The highest number of sales occurred in Houston in July 2015.
+3. The highest number of sales, 8945, occurred in Houston in July 2015.
 
 ```{r}
 txhousing %>% group_by(city, month, year) %>%
   arrange(desc(sales))
 ```
 
-4. I expect listings and sales to rise and fall together.
-
-The visualization below affirms my assumption.
+4. I expect that the more listings there are, the more sales there are. The visualization below affirms my assumption.
 
 ```{r}
 ggplot(txhousing, aes(x=listings, y=sales)) +
@@ -160,25 +154,37 @@ txhousing %>% group_by(city) %>%
 6. Looking at only the cities and months with greater than 500 sales:
 
 ```{r}
-bigsales <- txhousing %>% filter(sales > 500)
+bigsales <- txhousing %>% rename(med_price = median) %>% filter(sales > 500)
 ```
 
-a. The distributions of the median sales price when grouped by city differ quite a bit. The table below shows that the city with the highest median price was Collin County ($196,000), and the city with the lowest median price was Ft. Worth ($114,600). The faceted graph below shows the distribution of median sales prices for each city. The histograms vary a lot in shape. For example, Bay Area is unimodal and nearly symmetrical, Dallas is unimodal and skews right, Austin is bimodal.
-
-b. Any cities that stand out that you’d want to investigate further?
-
-c. Why might we want to filter out all cities and months with sales less than 500?
+a. The distributions of the median sales price when grouped by city differ quite a bit. See below.
 
 ```{r}
-# Average median price for "big sale city-months" by city 
-bigsales %>% group_by(city) %>% summarize(median = median(median)) %>% 
-  arrange(desc(median)) 
+# This table shows that the city with the highest median price was Collin County ($196,000), 
+# and the city with the lowest median price was Ft. Worth ($114,600). 
+bigsales %>% group_by(city) %>% 
+  summarize(median_price = median(med_price)) %>% 
+  arrange(desc(median_price)) 
 
-# Visualize spread of median prices by city
-ggplot(bigsales, aes(x = median)) + 
+# These histograms of the distribution of median prices by city vary a lot in shape. 
+# For example, Bay Area is unimodal and nearly symmetrical, Dallas is unimodal and skews right,
+# and Austin is bimodal.
+ggplot(bigsales, aes(x = med_price)) + 
   geom_histogram() + 
   facet_wrap(~ city) 
+
+# These boxplots are another visualization of the distribution of median sales prices for 
+# each city, and they also show a lot of variation. For example, the lower two quartiles of 
+# El Paso median prices cover a much wider spread than the upper two quartiles, 
+# while Denton County is the opposite.
+ggplot(bigsales) + 
+  geom_boxplot(aes(x = reorder(city, med_price, FUN = median), y = med_price)) +
+  xlab("CITY") + 
+  ylab("MEDIAN SALES PRICE") + 
+  coord_flip()
 ```
 
+b. I would be curious to investigate Austin further to try to understand its bimodal distribution of median prices. Maybe housing prices shot up suddenly at some point, or crashed? I'd also like to understand why the cities with the highest median sales prices (Collin County, Austin, Montgomery County, Fort Bend) also seem to have the greatest range in their upper quartile median prices. This really contrasts with El Paso, a city with a low median and very little range in its upper quartile median prices.
 
+c. The smaller the number of observations in a group, the less meaningful measures of center like median are. That might be a reason to filter out all cities and months with sales less than 500.
 
