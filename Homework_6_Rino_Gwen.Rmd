@@ -15,11 +15,12 @@ library(mosaicData)
 library(forcats)
 ```
 
+***
 ## EXERCISE ONE
 
 1. The Whickham data frame has three variables: `outcome` (Alive/Dead) is survival status after 20 years, `smoker` (No/Yes) is smoking status at baseline, and `age` (in years) is age at the time of the first survey.
 
-2. The Whickham data frame has 1314 observations. Each observation is survey results about one woman from Whickham, England.
+2. The Whickham data frame has 1314 observations. Each observation is survey results from 1972-74 and 20 years later about one woman from Whickham, England.
 
 3. The visualization below shows that a higher proportion of smokers than non-smokers are alive after 20 years. This is a surprising outcome given all we know about the effect of smoking on longevity.
 
@@ -32,7 +33,7 @@ Whickham %>% count(smoker, outcome) %>%
   labs(x = "Smoker", y = "", fill = "Outcome", title = "Outcome by Smoking Status") + theme_bw()
 ```
 
-4. The visualization below shows that when age is taken into account, a higher proportion of non-smokers than smokers are alive after 20 years. This makes sense: it accounts for different smoking rates and different death rates for people of different ages (see second and third visualizations). It is an example of Simpson's paradox that when groups of data show one particular trend, but this trend is reversed when the groups are combined together.
+4. The visualization below shows that when age is taken into account, a higher proportion of non-smokers than smokers are alive after 20 years. This makes sense: it accounts for different smoking rates and different death rates for people of different ages (see second and third visualizations). It is an example of Simpson's paradox that groups of data may show one particular trend, but this trend is reversed when the groups are combined together.
 
 ```{r}
 # Create vector of levels for new variable
@@ -66,3 +67,33 @@ Whickham_2 %>% count(outcome, age_bin) %>%
   theme_bw()
 ```
 
+***
+## EXERCISE TWO
+
+The Central Limit Theorem states that the sampling distribution of sample means is approximately Normal, regardless of the distribution of your population.
+
+1. Below is a random sample of size n = 10000 from a gamma(1,2) distribution and a histogram of the distribution.
+
+```{r}
+n <- 10000
+gamma_samp <- tibble(x = rgamma(n, shape = 1, scale = 2)) 
+ggplot(gamma_samp, aes(x=x)) + geom_histogram(binwidth = .2)  
+```
+
+2. What is the mean and standard deviation of your sample?
+
+```{r}
+
+```
+
+3.
+
+4.
+
+5.
+
+6.
+
+7.
+
+8.
