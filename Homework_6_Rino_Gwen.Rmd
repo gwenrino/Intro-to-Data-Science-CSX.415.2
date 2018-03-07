@@ -1,0 +1,25 @@
+---
+title: "COMPSCIX 415.2 Homework 6"
+author: "Gwen Rino"
+date: "March 7, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+```{r}
+# useful model of case_when and faceting
+diamonds_2 <- diamonds %>% mutate(carat_fct = factor(case_when(carat < 1 ~ "small",
+                                                   carat >= 1 & carat < 2 ~ "medium",
+                                                   carat >= 2 ~ "large"),
+                                         levels = c("small", "med", "large")))
+diamonds_2 %>% ggplot(aes(x = cut, y = price)) + 
+  geom_boxplot() + 
+  facet_wrap(~carat_fct)
+```
