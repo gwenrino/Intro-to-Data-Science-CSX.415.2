@@ -11,15 +11,58 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load_packages, warning=FALSE, message=FALSE}
 library(tidyverse)
+library(mosaicData)
+library(forcats)
 ```
 
+## EXERCISE ONE
+
+1. The Whickham data frame has three variables: `outcome` (Alive/Dead) is survival status after 20 years, `smoker` (No/Yes) is smoking status at baseline, and `age` (in years) is age at the time of the first survey.
+
+2. The Whickham data frame has 1314 observations. Each observation is survey results about one woman from Whickham, England.
+
+3. The visualization below shows that a higher proportion of smokers than non-smokers are alive after 20 years. This is a surprising outcome given all we know about the effect of smoking on longevity.
+
 ```{r}
-# useful model of case_when and faceting
-diamonds_2 <- diamonds %>% mutate(carat_fct = factor(case_when(carat < 1 ~ "small",
-                                                   carat >= 1 & carat < 2 ~ "medium",
-                                                   carat >= 2 ~ "large"),
-                                         levels = c("small", "med", "large")))
-diamonds_2 %>% ggplot(aes(x = cut, y = price)) + 
-  geom_boxplot() + 
-  facet_wrap(~carat_fct)
+Whickham %>% count(smoker, outcome)
+
+Whickham %>% count(smoker, outcome) %>%  
+  ggplot() + geom_bar(aes(x = smoker, y = n, fill = outcome),
+                      stat = "identity", position = "fill") + 
+  labs(x = "Smoker", y = "", fill = "Outcome", title = "Outcome by Smoking Status") + theme_bw()
 ```
+
+4. The visualization below shows that when age is taken into account, a higher proportion of non-smokers than smokers are alive after 20 years. This makes sense: it accounts for different smoking rates and different death rates for people of different ages (see second and third visualizations). It is an example of Simpson's paradox that when groups of data show one particular trend, but this trend is reversed when the groups are combined together.
+
+```{r}
+# Create vector of levels for new variable
+age_cat <- case_when(Whickham$age <= 44 ~ "under 45", 
+                     Whickham$age > 44 & Whickham$age <= 64 ~ "45-64", 
+                     Whickham$age > 64 ~ "65 and older")
+# Recode vector as ordered factor
+age_cat <- fct_relevel(age_cat, "under 45", "45-64", "65 and older")
+# Add vector to dataframe as new variable
+Whickham_2 <- Whickham %>% mutate(age_bin = age_cat)
+
+# Visualization of outcome by smoking status and age
+Whickham_2 %>% count(smoker, outcome, age_bin) %>%  
+  ggplot() + geom_bar(aes(x = smoker, y = n, fill = outcome),
+                      stat = "identity", position = "fill") + 
+  facet_grid(~ age_bin) + 
+  labs(x = "Smoker", y = "", fill = "Outcome", title = "Outcome by Smoking Status") + theme_bw()
+
+# Visualization of smoking status by age
+Whickham_2 %>% count(smoker, age_bin) %>% 
+  ggplot() + geom_bar(aes(x = smoker, y = n), stat = "identity") + 
+  facet_grid(~ age_bin) + 
+  labs(x = "Smoker", y = "", title = "Incidence of Smoking by Age") + 
+  theme_bw()
+
+# Visualization of outcome by age
+Whickham_2 %>% count(outcome, age_bin) %>% 
+  ggplot() + geom_bar(aes(x = outcome, y = n), stat = "identity") + 
+  facet_grid(~ age_bin) + 
+  labs(x = "Outcome", y = "", title = "Incidence of Outcome by Age") + 
+  theme_bw()
+```
+
