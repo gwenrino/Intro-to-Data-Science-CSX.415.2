@@ -20,7 +20,7 @@ library(forcats)
 
 1. The Whickham data frame has three variables: `outcome` (Alive/Dead) is survival status after 20 years, `smoker` (No/Yes) is smoking status at baseline, and `age` (in years) is age at the time of the first survey.
 
-2. The Whickham data frame has 1314 observations. Each observation is survey results from 1972-74 and 20 years later about one woman from Whickham, England.
+2. The Whickham data frame has 1314 observations. Each observation is survey results about one woman from Whickham, England.
 
 3. The visualization below shows that a higher proportion of smokers than non-smokers are alive after 20 years. This is a surprising outcome given all we know about the effect of smoking on longevity.
 
@@ -33,7 +33,7 @@ Whickham %>% count(smoker, outcome) %>%
   labs(x = "Smoker", y = "", fill = "Outcome", title = "Outcome by Smoking Status") + theme_bw()
 ```
 
-4. The visualization below shows that when age is taken into account, a higher proportion of non-smokers than smokers are alive after 20 years. This makes sense: it accounts for different smoking rates and different death rates for people of different ages (see second and third visualizations). It is an example of Simpson's paradox that groups of data may show one particular trend, but this trend is reversed when the groups are combined together.
+4. The visualization below shows that when age is taken into account, a higher proportion of non-smokers than smokers are alive after 20 years. This makes sense: it reflects differences in the number of people in the three age groups, and the different smoking rates and different death rates for people of different ages (see second and third visualizations). It is an example of Simpson's paradox that groups of data may show one particular trend, but this trend is reversed when the groups are combined together.
 
 ```{r}
 # Create vector of levels for new variable
@@ -50,7 +50,7 @@ Whickham_2 %>% count(smoker, outcome, age_bin) %>%
   ggplot() + geom_bar(aes(x = smoker, y = n, fill = outcome),
                       stat = "identity", position = "fill") + 
   facet_grid(~ age_bin) + 
-  labs(x = "Smoker", y = "", fill = "Outcome", title = "Outcome by Smoking Status") + theme_bw()
+  labs(x = "Smoker", y = "", fill = "Outcome", title = "Outcome by Smoking Status and Age") + theme_bw()
 
 # Visualization of smoking status by age
 Whickham_2 %>% count(smoker, age_bin) %>% 
@@ -70,9 +70,7 @@ Whickham_2 %>% count(outcome, age_bin) %>%
 ***
 ## EXERCISE TWO
 
-The Central Limit Theorem states that the sampling distribution of sample means is approximately Normal, regardless of the distribution of your population.
-
-1. Below is a random sample of size n = 10000 from a gamma(1,2) distribution and a histogram of the distribution.
+1. Below is a random sample of size n = 10000 of a Gamma(1,2) distribution and a histogram of the sample distribution.
 
 ```{r}
 n <- 10000
@@ -80,20 +78,71 @@ gamma_samp <- tibble(x = rgamma(n, shape = 1, scale = 2))
 ggplot(gamma_samp, aes(x=x)) + geom_histogram(binwidth = .2)  
 ```
 
-2. What is the mean and standard deviation of your sample?
+2. Mean and standard deviation of the sample are below:
 
 ```{r}
-
+gamma_samp %>% 
+  summarize(mean_samp = mean(x), sd_samp = sd(x))
 ```
 
-3.
+3. Do the whole thing again with a sample size n=30.
 
-4.
+```{r}
+n <- 30
+gamma_samp_2 <- tibble(x = rgamma(n, shape = 1, scale = 2)) 
+ggplot(gamma_samp_2, aes(x=x)) + geom_histogram(binwidth = .2) 
+gamma_samp_2 %>% 
+  summarize(mean_samp = mean(x), sd_samp = sd(x))
+```
 
-5.
+4. Create a vector of the means of 10,000 samples (n=30) of the Gamma(1,2) distribution. Thank your teacher for basically doing all the work.
 
-6.
+```{r}
+# Create a vector with 10000 NAs
+mean_samp <- rep(NA, 10000)
 
-7.
+# Use for loop to generate vector of means
+for(i in 1:10000) {
+  g_samp <- rgamma(30, shape = 1, scale = 2)
+  mean_samp[i] <- mean(g_samp)
+}
+# Convert vector to a tibble
+mean_samp <- tibble(mean_samp)
+```
 
-8.
+5. Make a histogram of your collection of means from above.
+
+```{r}
+ggplot(mean_samp, aes(x=mean_samp)) + geom_histogram(binwidth = .05)  
+```
+
+6.Calculate the mean and standard deviation of all of your sample means.
+
+```{r}
+mean_samp %>% 
+  summarize(mean = mean(mean_samp), sd = sd(mean_samp))
+```
+
+7. Without thinking much about it, I anticipated that both the mean and the standard deviation of the 10,000 means would be close to 2 (similar to the mean and standard deviation of one sample), so I was surprised for a moment that the standard deviation of the 10,000 means was about 0.37. But of course this makes sense! The means of the samples are measures of center of the samples, so they don't vary as widely as the samples do, so the standard deviation of the means is less than the standard deviation of a sample.
+
+8. Below are a histogram and a calculation of mean and standard deviation for the means of 300 samples of the Gamma(1,2) distribution. While the histogram is a pretty rough approximation of a normal curve, the mean and standard deviation match up quite well with the Central Limit Theorem, which predicts that the mean should be close to 2 and the standard deviation should be about 0.365.
+
+```{r}
+# Create a vector with 300 NAs
+mean_samp_2 <- rep(NA, 300)
+
+# Use for loop to generate vector of means
+for(i in 1:300) {
+  g_samp <- rgamma(30, shape = 1, scale = 2)
+  mean_samp_2[i] <- mean(g_samp)
+}
+# Convert vector to a tibble
+mean_samp_2 <- tibble(mean_samp_2)
+
+# Histogram
+ggplot(mean_samp_2, aes(x=mean_samp_2)) + geom_histogram(binwidth = .05)  
+
+# Mean and standard deviation
+mean_samp_2 %>% 
+  summarize(mean = mean(mean_samp_2), sd = sd(mean_samp_2))
+```
