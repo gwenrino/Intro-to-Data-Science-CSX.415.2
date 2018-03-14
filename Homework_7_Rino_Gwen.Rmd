@@ -1,0 +1,11 @@
+---
+title: "COMPSCIX 415.2 Homework 7"
+author: "Gwen Rino"
+date: "March 13, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
