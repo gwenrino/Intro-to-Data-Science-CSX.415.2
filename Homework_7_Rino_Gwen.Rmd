@@ -90,21 +90,62 @@ With an adjusted R^2^ value of 0.8050277, the model is a good fit to the trainin
 This model, with a RMSE of ~$42K, is substantially better than using the mean sales price as a prediction (RMSE ~$79K).
 
 ```{r}
-# Model predictions
-test_predictions <- predict(mod_1, newdata = test_set)
+## Baseline mod_0 (intercept = mean of SalePrice) for comparison
 
-# RMSE of model predictions
-rmse_test <- sqrt(mean((test_set$SalePrice - test_predictions)^2))
-rmse_test 
+# Predictions from mod_0
+test_predictions_mean <- predict(mod_0, newdata = test_set) 
+# RMSE of mod_0 predictions
+rmse_test_mean <- sqrt(mean((test_set$SalePrice - test_predictions_mean)^2)) 
+rmse_test_mean
 
-# For comparison, RMSE of mean price as prediction
-rmse_mean <- sqrt(mean((test_set$SalePrice - mean(test_set$SalePrice))^2))
-rmse_mean 
+## Linear model regressing SalePrice on GrLivArea + OverallQual + Neighborhood
+
+# Predictions from mod_1
+test_predictions_mod <- predict(mod_1, newdata = test_set)
+# RMSE of mod_1 predictions
+rmse_test_mod <- sqrt(mean((test_set$SalePrice - test_predictions_mod)^2))
+rmse_test_mod 
 ```
 
 ***
 ## EXERCISE SIX  
 
+I tried pairing OverallQual, BldgType, and CentralAir with GrLivArea individually and together, with the results below. 
+
+```{r}
+mod_2 <- lm(SalePrice ~ GrLivArea + OverallQual, data = train_set)
+tidy(mod_2)
+glance(mod_2)
+
+test_predictions.2 <- predict(mod_2, newdata = test_set)
+rmse_test_mod.2 <- sqrt(mean((test_set$SalePrice - test_predictions.2)^2))
+rmse_test_mod.2
+
+mod_3 <- lm(SalePrice ~ GrLivArea + BldgType, data = train_set)
+tidy(mod_3)
+glance(mod_3)
+
+test_predictions.3 <- predict(mod_3, newdata = test_set)
+rmse_test_mod.3 <- sqrt(mean((test_set$SalePrice - test_predictions.3)^2))
+rmse_test_mod.3
+
+mod_4 <- lm(SalePrice ~ GrLivArea + CentralAir, data = train_set)
+tidy(mod_4)
+glance(mod_4)
+
+test_predictions.4 <- predict(mod_4, newdata = test_set)
+rmse_test_mod.4 <- sqrt(mean((test_set$SalePrice - test_predictions.4)^2))
+rmse_test_mod.4
+
+mod_5 <- lm(SalePrice ~ GrLivArea + OverallQual + BldgType + CentralAir, 
+            data = train_set)
+tidy(mod_5)
+glance(mod_5)
+
+test_predictions.5 <- predict(mod_5, newdata = test_set)
+rmse_test_mod.5 <- sqrt(mean((test_set$SalePrice - test_predictions.5)^2))
+rmse_test_mod.5
+```
 ***
 ## EXERCISE SEVEN  
 

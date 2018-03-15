@@ -331,21 +331,96 @@ With an adjusted R<sup>2</sup> value of 0.8050277, the model is a good fit to th
 <div id="exercise-five" class="section level2">
 <h2>EXERCISE FIVE</h2>
 <p>This model, with a RMSE of ~$42K, is substantially better than using the mean sales price as a prediction (RMSE ~$79K).</p>
-<pre class="r"><code># Model predictions
-test_predictions &lt;- predict(mod_1, newdata = test_set)
+<pre class="r"><code>## Baseline mod_0 (intercept = mean of SalePrice) for comparison
 
-# RMSE of model predictions
-rmse_test &lt;- sqrt(mean((test_set$SalePrice - test_predictions)^2))
-rmse_test </code></pre>
+# Predictions from mod_0
+test_predictions_mean &lt;- predict(mod_0, newdata = test_set) 
+# RMSE of mod_0 predictions
+rmse_test_mean &lt;- sqrt(mean((test_set$SalePrice - test_predictions_mean)^2)) 
+rmse_test_mean</code></pre>
+<pre><code>## [1] 78946.72</code></pre>
+<pre class="r"><code>## Linear model regressing SalePrice on GrLivArea + OverallQual + Neighborhood
+
+# Predictions from mod_1
+test_predictions_mod &lt;- predict(mod_1, newdata = test_set)
+# RMSE of mod_1 predictions
+rmse_test_mod &lt;- sqrt(mean((test_set$SalePrice - test_predictions_mod)^2))
+rmse_test_mod </code></pre>
 <pre><code>## [1] 41915.27</code></pre>
-<pre class="r"><code># For comparison, RMSE of mean price as prediction
-rmse_mean &lt;- sqrt(mean((test_set$SalePrice - mean(test_set$SalePrice))^2))
-rmse_mean </code></pre>
-<pre><code>## [1] 78835.85</code></pre>
 <hr />
 </div>
 <div id="exercise-six" class="section level2">
 <h2>EXERCISE SIX</h2>
+<p>I tried pairing OverallQual, BldgType, and CentralAir with GrLivArea individually and together, with the results below.</p>
+<pre class="r"><code>mod_2 &lt;- lm(SalePrice ~ GrLivArea + OverallQual, data = train_set)
+tidy(mod_2)</code></pre>
+<pre><code>##          term      estimate   std.error statistic       p.value
+## 1 (Intercept) -114672.88670 5868.933080 -19.53897  1.860180e-72
+## 2   GrLivArea      62.42241    3.135914  19.90565  9.788161e-75
+## 3 OverallQual   33213.52269 1170.232496  28.38199 4.810438e-131</code></pre>
+<pre class="r"><code>glance(mod_2)</code></pre>
+<pre><code>##   r.squared adj.r.squared    sigma statistic       p.value df    logLik
+## 1 0.7424667     0.7419612 40469.56  1468.885 6.601269e-301  3 -12290.34
+##        AIC     BIC     deviance df.residual
+## 1 24588.68 24608.4 1.668903e+12        1019</code></pre>
+<pre class="r"><code>test_predictions.2 &lt;- predict(mod_2, newdata = test_set)
+rmse_test_mod.2 &lt;- sqrt(mean((test_set$SalePrice - test_predictions.2)^2))
+rmse_test_mod.2</code></pre>
+<pre><code>## [1] 47478.57</code></pre>
+<pre class="r"><code>mod_3 &lt;- lm(SalePrice ~ GrLivArea + BldgType, data = train_set)
+tidy(mod_3)</code></pre>
+<pre><code>##             term    estimate    std.error statistic       p.value
+## 1    (Intercept)   6182.5619  5287.831222  1.169206  2.425950e-01
+## 2      GrLivArea    118.1069     3.252471 36.312989 9.311874e-186
+## 3 BldgType2fmCon -52204.2227 10512.669234 -4.965839  8.019799e-07
+## 4 BldgTypeDuplex -65038.8423  9067.465716 -7.172770  1.414355e-12
+## 5  BldgTypeTwnhs -19668.5379  9986.422140 -1.969528  4.916384e-02
+## 6 BldgTypeTwnhsE  22957.6380  5976.053208  3.841605  1.298077e-04</code></pre>
+<pre class="r"><code>glance(mod_3)</code></pre>
+<pre><code>##   r.squared adj.r.squared    sigma statistic       p.value df    logLik
+## 1 0.5791943     0.5771234 51807.52  279.6832 4.124436e-188  6 -12541.25
+##        AIC      BIC     deviance df.residual
+## 1 25096.51 25131.01 2.726963e+12        1016</code></pre>
+<pre class="r"><code>test_predictions.3 &lt;- predict(mod_3, newdata = test_set)
+rmse_test_mod.3 &lt;- sqrt(mean((test_set$SalePrice - test_predictions.3)^2))
+rmse_test_mod.3</code></pre>
+<pre><code>## [1] 60005.06</code></pre>
+<pre class="r"><code>mod_4 &lt;- lm(SalePrice ~ GrLivArea + CentralAir, data = train_set)
+tidy(mod_4)</code></pre>
+<pre><code>##          term    estimate   std.error statistic       p.value
+## 1 (Intercept) -47330.1437 7706.778507 -6.141366  1.171028e-09
+## 2   GrLivArea    114.0781    3.222076 35.405168 1.122220e-179
+## 3 CentralAirY  61657.5846 6480.425884  9.514434  1.272846e-20</code></pre>
+<pre class="r"><code>glance(mod_4)</code></pre>
+<pre><code>##   r.squared adj.r.squared   sigma statistic      p.value df    logLik
+## 1 0.5765041     0.5756729 51896.3  693.5812 7.58042e-191  3 -12544.51
+##        AIC      BIC     deviance df.residual
+## 1 25097.02 25116.74 2.744397e+12        1019</code></pre>
+<pre class="r"><code>test_predictions.4 &lt;- predict(mod_4, newdata = test_set)
+rmse_test_mod.4 &lt;- sqrt(mean((test_set$SalePrice - test_predictions.4)^2))
+rmse_test_mod.4</code></pre>
+<pre><code>## [1] 59820.32</code></pre>
+<pre class="r"><code>mod_5 &lt;- lm(SalePrice ~ GrLivArea + OverallQual + BldgType + CentralAir, 
+            data = train_set)
+tidy(mod_5)</code></pre>
+<pre><code>##             term      estimate   std.error  statistic       p.value
+## 1    (Intercept) -125744.85548 7009.701701 -17.938689  1.041021e-62
+## 2      GrLivArea      63.54271    3.258053  19.503280  3.468133e-72
+## 3    OverallQual   31473.44757 1255.163864  25.075170 2.351136e-108
+## 4 BldgType2fmCon   -8511.08176 8367.407643  -1.017171  3.093149e-01
+## 5 BldgTypeDuplex  -21066.72416 7118.943747  -2.959249  3.155577e-03
+## 6  BldgTypeTwnhs  -31292.13309 7643.937353  -4.093719  4.582669e-05
+## 7 BldgTypeTwnhsE   -8136.16773 4709.285481  -1.727686  8.434897e-02
+## 8    CentralAirY   24063.38633 5287.334337   4.551138  5.981688e-06</code></pre>
+<pre class="r"><code>glance(mod_5)</code></pre>
+<pre><code>##   r.squared adj.r.squared    sigma statistic       p.value df    logLik
+## 1 0.7549116     0.7532197 39576.85  446.1833 2.122039e-304  8 -12265.03
+##        AIC      BIC     deviance df.residual
+## 1 24548.06 24592.43 1.588256e+12        1014</code></pre>
+<pre class="r"><code>test_predictions.5 &lt;- predict(mod_5, newdata = test_set)
+rmse_test_mod.5 &lt;- sqrt(mean((test_set$SalePrice - test_predictions.5)^2))
+rmse_test_mod.5</code></pre>
+<pre><code>## [1] 47079.72</code></pre>
 <hr />
 </div>
 <div id="exercise-seven" class="section level2">
