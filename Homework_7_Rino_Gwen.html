@@ -425,7 +425,7 @@ rmse_test_mod.5</code></pre>
 </div>
 <div id="exercise-seven" class="section level2">
 <h2>EXERCISE SEVEN</h2>
-<p>The model changes quite a lot (both the slope and the y-intercept) with each simulated data set.</p>
+<p>The model changes quite a lot (both the slope and the y-intercept) with each simulated data set. The unusual values that sometimes occur in the data set have a big influence on the model.</p>
 <pre class="r"><code>sim1a &lt;- tibble(
   x = rep(1:10, each = 3),
   y = x * 1.5 + 6 + rt(length(x), df = 2)

@@ -110,7 +110,7 @@ rmse_test_mod
 ***
 ## EXERCISE SIX  
 
-I tried pairing OverallQual, BldgType, and CentralAir with GrLivArea individually and together, with the results below. 
+I tried pairing OverallQual, BldgType, and CentralAir with GrLivArea individually and together, with the results below.
 
 ```{r}
 mod_2 <- lm(SalePrice ~ GrLivArea + OverallQual, data = train_set)
@@ -149,7 +149,7 @@ rmse_test_mod.5
 ***
 ## EXERCISE SEVEN  
 
-The model changes quite a lot (both the slope and the y-intercept) with each simulated data set.
+The model changes quite a lot (both the slope and the y-intercept) with each simulated data set. The unusual values that sometimes occur in the data set have a big influence on the model.
 
 ```{r}
 sim1a <- tibble(
