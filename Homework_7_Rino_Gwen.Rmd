@@ -21,7 +21,8 @@ This data set has 1460 observations and 81 columns.
 
 ```{r}
 housing <- read_csv("train.csv")
-glimpse(housing)
+nrow(housing)
+ncol(housing)
 ```
 
 ***
@@ -56,6 +57,11 @@ glance(mod_0)
 ***
 ## EXERCISE FOUR  
 
+Preliminary to fitting the model...  
+* My guess is that GrLivArea and OverallQual will be positively associated with SalePrice, and that some levels of Neighborhood will be associated with higher prices than others.  
+* I imagine that the SalePrice's association with these features can be estimated linearly.  
+* These do seem like good features to use to predict SalePrice.  
+
 ```{r}
 mod_1 <- lm(SalePrice ~ GrLivArea + OverallQual + Neighborhood, data = train_set)
 
@@ -76,8 +82,8 @@ The mean sales price in the Brookside neighborhood is $14,064.37 less than the m
 The features GrLivArea (p-value=1.34e-80) and OverallQual (p-value=1.39e-51) are statistically significant. However, BrkSide (p-value=0.21) is not significantly different from the baseline neighborhood Blmngtn.  
 
 **Are the features practically significant?**  
-* Given the cost of a house, a price difference of $62.78 is not important, so I would say that the GrLivArea feature is not practically significant.  
-* However, a price difference of $21,692.23 for each level of OverallQual does seem practically significant to me.  
+* Given the cost of a house, a price difference of $62.78 is not important, so I would say that the GrLivArea feature is not practically significant when you're comparing houses that are close in size. That said, a small difference in square footage doesn't make much of a practical difference, either. However, a 1000 sq ft difference in size makes a huge practical difference, and the price differential of $62,780 is also practically signficant.  
+* A price difference of $21,692.23 for each level of OverallQual does seem practically significant to me.  
 * Some of the levels of the Neighborhood feature are practically significant from the baseline (e.g. a home in StoneBr averages $65.7K more than a home in baseline Blmngtn), while other levels are not practically significant (e.g. a home in Mitchel averages only $1922.31 more than a home in baseline Blmngtn).
 
 
@@ -91,7 +97,6 @@ This model, with a RMSE of ~$42K, is substantially better than using the mean sa
 
 ```{r}
 ## Baseline mod_0 (intercept = mean of SalePrice) for comparison
-
 # Predictions from mod_0
 test_predictions_mean <- predict(mod_0, newdata = test_set) 
 # RMSE of mod_0 predictions
@@ -99,7 +104,6 @@ rmse_test_mean <- sqrt(mean((test_set$SalePrice - test_predictions_mean)^2))
 rmse_test_mean
 
 ## Linear model regressing SalePrice on GrLivArea + OverallQual + Neighborhood
-
 # Predictions from mod_1
 test_predictions_mod <- predict(mod_1, newdata = test_set)
 # RMSE of mod_1 predictions
@@ -110,7 +114,7 @@ rmse_test_mod
 ***
 ## EXERCISE SIX  
 
-I tried pairing OverallQual, BldgType, and CentralAir with GrLivArea individually and together, with the results below.
+I tried pairing OverallQual, BldgType, and CentralAir with GrLivArea individually and together, with the results below. None of these models was as good as the model with GrLivArea, OverallQual, and Neighborhood. 
 
 ```{r}
 mod_2 <- lm(SalePrice ~ GrLivArea + OverallQual, data = train_set)
