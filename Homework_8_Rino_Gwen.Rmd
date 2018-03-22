@@ -50,7 +50,7 @@ test_set <- titanic %>% filter(!(titanic$PassengerId %in% train_set$PassengerId)
 ## EXERCISE THREE  
 
 Preliminary to fitting the model...  
-* My guess is that Pclass is associated with a negative probability of survival (1st class passengers more likely to survive than 3rd class passengers), Sex (female) is associated with a positive probability of survival ("Women and children first!"), and Fare is associated with a positive probability of survival.  
+* My guess is that Pclass level 2 and 3 are associated with a lower probability of survival than Pclass level 1, Sex (female) is associated with a higher probability of survival ("Women and children first!"), and higher Fares are associated with higher probability of survival.  
 * My concern about this choice of features is that Fare and Pclass are probably correlated.  
 
 ```{r}
@@ -62,8 +62,8 @@ tidy(log_mod.1)
 
 The coefficients in the model show that:  
 * The lower class the passenger is, the lower the probability of survival.  
-* Being male is associated with a negative probability of survival.  
-* Paying a higher fare is associated with a positive probability of survival.  
+* Being male is associated with a lower probability of survival.  
+* Paying a higher fare is associated with a higher probability of survival.  
 
 The p-values of the coefficients show that Pclass and Sex are statistically significant predictors of survival, but Fare is not.
 
