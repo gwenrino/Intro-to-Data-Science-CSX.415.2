@@ -70,9 +70,14 @@ The p-values of the coefficients show that Pclass and Sex are statistically sign
 ***
 ## EXERCISE FOUR
 
+a. A third class female passenger who paid a fare >= 23.35 has a low probability of survival.  
+b. I'm surprised that the tree shows such different probabilities for survival among third class female passengers who paid different fares. Higher fares do not seem to be associated with higher probability of survival among third class female passengers.  
 ```{r}
 tree_mod.1 <- rpart(Survived ~ Pclass + Sex + Fare, data = titanic)
 plot(as.party(tree_mod.1))
 ```
+
+***
+## EXERCISE FIVE  
 
 
