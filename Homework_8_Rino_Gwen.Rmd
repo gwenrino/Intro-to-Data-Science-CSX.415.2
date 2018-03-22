@@ -35,8 +35,9 @@ ncol(titanic)
 # Set seed
 set.seed(29283)
 
-# Convert Pclass to factor
+# Convert Survived and Pclass to factor
 titanic$Pclass <- factor(titanic$Pclass)
+titanic$Survived <- factor(titanic$Survived)
 
 # Create training set
 train_set <- titanic %>% sample_frac(0.7)
