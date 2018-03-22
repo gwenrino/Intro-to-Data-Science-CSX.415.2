@@ -71,7 +71,7 @@ The p-values of the coefficients show that Pclass and Sex are statistically sign
 ## EXERCISE FOUR
 
 a. A third class female passenger who paid a fare >= 23.7 has a low probability of survival.  
-b. I'm surprised that the tree shows such different probabilities for survival among third class female passengers who paid different fares. Higher fares do not seem to be associated with higher probability of survival among third class female passengers.  
+b. I'm surprised that the tree shows such different probabilities for survival among third class female passengers depending on what fare they paid. Higher fares do not seem to be associated with higher probability of survival among third class female passengers.  
 ```{r}
 tree_mod.1 <- rpart(Survived ~ Pclass + Sex + Fare, data = train_set)
 plot(as.party(tree_mod.1))
@@ -79,5 +79,90 @@ plot(as.party(tree_mod.1))
 
 ***
 ## EXERCISE FIVE  
+
+```{r}
+# Get the predictions from each model for the test set
+test_logit <- predict(log_mod.1, newdata = test_set, type = 'response')
+test_tree <- predict(tree_mod.1, newdata = test_set)[,2]
+```
+
+a. Plot the ROC curve for each model
+
+```{r}
+# Create the prediction objects for both models
+pred_logit <- prediction(predictions = test_logit, labels = test_set$Survived)
+pred_tree <- prediction(predictions = test_tree, labels = test_set$Survived)
+
+# Get the FPR and TPR for the logistic model
+# Recall that the ROC curve plots the FPR on the x-axis
+perf_logit <- performance(pred_logit, measure = 'tpr', x.measure = 'fpr')
+perf_logit_tbl <- tibble(perf_logit@x.values[[1]], perf_logit@y.values[[1]])
+
+# Change the names of the columns of the tibble
+names(perf_logit_tbl) <- c('fpr', 'tpr')
+
+# Get the FPR and TPR for the tree model
+perf_tree <- performance(pred_tree, measure = 'tpr', x.measure = 'fpr')
+perf_tree_tbl <- tibble(perf_tree@x.values[[1]], perf_tree@y.values[[1]])
+
+# Change the names of the columns of the tibble
+names(perf_tree_tbl) <- c('fpr', 'tpr')
+
+# Plotting function for plotting a nice ROC curve using ggplot
+plot_roc <- function(perf_tbl) {
+  p <- ggplot(data = perf_tbl, aes(x = fpr, y = tpr)) +
+  geom_line(color = 'blue') +
+  geom_abline(intercept = 0, slope = 1, lty = 3) +
+  labs(x = 'False positive rate', y = 'True positive rate') +
+  theme_bw()
+  return(p)
+}
+
+# Create the ROC curves using the function we created above
+plot_roc(perf_logit_tbl) + labs(title = 'Logistic Regression Model')
+plot_roc(perf_tree_tbl) + labs(title = 'Decision Tree Model')
+```
+
+b. The ROC curves appear roughly the same, though the decision tree curve is much smoother.
+
+The AUC calculations show that the models' performances are quite similar, with the logistic regression model slightly better than the decision tree model (AUC = 0.81 vs. AUC = 0.78).
+
+```{r}
+# Calculate the AUC
+auc_logit <- performance(pred_logit, measure = "auc")
+auc_tree <- performance(pred_tree, measure = "auc")
+
+# Extract the AUC value
+auc_logit@y.values[[1]]
+auc_tree@y.values[[1]]
+```
+
+c. At the cutoff value of 0.64 probability, the decision tree model predicts with slightly higher accuracy (77.5%) than the logistic regression model does (75.3%).
+
+```{r}
+# Cutoff value = 0.64
+test_set <- test_set %>% 
+  # Append predicted probabilities from logistic regression model
+  mutate(pred_prob_log = test_logit) %>%
+  # Append predicted categories (survived Yes or No) from log reg model probabilities
+  mutate(pred_cat_log = case_when(pred_prob_log < .64 ~ 'No',
+                                   pred_prob_log >= .64 ~ 'Yes')) %>%
+  # Append predicted probabilities from decision tree model
+  mutate(pred_prob_tree = test_tree) %>% 
+  # Append predicted categories (survived Yes or No) from tree model probabilities
+  mutate(pred_cat_tree = case_when(pred_prob_tree < .64 ~ 'No',
+                                    pred_prob_tree >= .64 ~ 'Yes'))
+
+# Create confusion matrices of each model's predictions
+test_set %>% count(pred_cat_log, Survived) %>% spread(Survived, n)
+test_set %>% count(pred_cat_tree, Survived) %>% spread(Survived, n)
+
+# Accuracy of logistic regression model's predictions
+(156 + 45) / (156 + 45 + 60 + 6)
+
+# Accuracy of decision tree model's predictions
+(146 + 61) / (146 + 61 + 44 + 16)
+```
+
 
 
