@@ -51,7 +51,7 @@ test_set <- titanic %>% filter(!(titanic$PassengerId %in% train_set$PassengerId)
 
 Preliminary to fitting the model...  
 * My guess is that Pclass level 2 and 3 are associated with a lower probability of survival than Pclass level 1, Sex (female) is associated with a higher probability of survival ("Women and children first!"), and higher Fares are associated with higher probability of survival.  
-* My concern about this choice of features is that Fare and Pclass are probably correlated.  
+* My concern about this choice of features is that Fare and Pclass may be correlated.  
 
 ```{r}
 # Fit the logistic regression model
@@ -73,7 +73,9 @@ The p-values of the coefficients show that Pclass and Sex are statistically sign
 a. A third class female passenger who paid a fare >= 23.7 has a low probability of survival.  
 b. I'm surprised that the tree shows such different probabilities for survival among third class female passengers depending on what fare they paid. Higher fares do not seem to be associated with higher probability of survival among third class female passengers.  
 ```{r}
+# Fit the decision tree model
 tree_mod.1 <- rpart(Survived ~ Pclass + Sex + Fare, data = train_set)
+# Visualize the tree
 plot(as.party(tree_mod.1))
 ```
 
@@ -164,5 +166,97 @@ test_set %>% count(pred_cat_tree, Survived) %>% spread(Survived, n)
 (146 + 61) / (146 + 61 + 44 + 16)
 ```
 
+***
+## EXERCISE SIX
+
+```{r}
+# Fit a logistic regression model adding Age as a feature
+log_mod.2 <- glm(Survived ~ Pclass + Sex + Fare + Age, data = train_set, 
+                 family = "binomial")
+# Output coefficients
+tidy(log_mod.2)
+# Get the predictions for the model
+test_logit.2 <- predict(log_mod.2, newdata = test_set, type = 'response')
+# Create the prediction object for the model
+pred_logit.2 <- prediction(predictions = test_logit.2, labels = test_set$Survived)
+# Get the FPR and TPR for the model
+perf_logit.2 <- performance(pred_logit.2, measure = 'tpr', x.measure = 'fpr')
+perf_logit_tbl.2 <- tibble(perf_logit.2@x.values[[1]], perf_logit.2@y.values[[1]])
+# Change the names of the columns of the tibble
+names(perf_logit_tbl.2) <- c('fpr', 'tpr')
+# Plot the ROC curve
+plot_roc(perf_logit_tbl.2) + labs(title = 'Logistic Regression Model 2')
+# Calculate AUC
+auc_logit.2 <- performance(pred_logit.2, measure = "auc")
+# Extract the AUC value
+auc_logit.2@y.values[[1]]
+```
+
+```{r}
+# Fit a decision tree model adding Age as a feature
+tree_mod.2 <- rpart(Survived ~ Pclass + Sex + Fare + Age, data = train_set)
+# Visualize the tree
+plot(as.party(tree_mod.2))
+# Get the predictions from the model for the test set
+test_tree.2 <- predict(tree_mod.2, newdata = test_set)[,2]
+# Create the prediction object for the model
+pred_tree.2 <- prediction(predictions = test_tree.2, labels = test_set$Survived)
+# Get the FPR and TPR for the model
+perf_tree.2 <- performance(pred_tree.2, measure = 'tpr', x.measure = 'fpr')
+perf_tree_tbl.2 <- tibble(perf_tree.2@x.values[[1]], perf_tree.2@y.values[[1]])
+# Change the names of the columns of the tibble
+names(perf_tree_tbl.2) <- c('fpr', 'tpr')
+# Plot the ROC curve
+plot_roc(perf_tree_tbl.2) + labs(title = 'Decision Tree Model 2')
+# Calculate the AUC
+auc_tree.2 <- performance(pred_tree.2, measure = "auc")
+# Extract the AUC value
+auc_tree.2@y.values[[1]]
+```
+
+```{r}
+# Fit a logistic regression model adding SibSp and Parch as features
+log_mod.3 <- glm(Survived ~ Pclass + Sex + Fare + Age + SibSp + Parch, 
+                 data = train_set, family = "binomial")
+# Output coefficients
+tidy(log_mod.3)
+# Get the predictions for the model
+test_logit.3 <- predict(log_mod.3, newdata = test_set, type = 'response')
+# Create the prediction object for the model
+pred_logit.3 <- prediction(predictions = test_logit.3, labels = test_set$Survived)
+# Get the FPR and TPR for the model
+perf_logit.3 <- performance(pred_logit.3, measure = 'tpr', x.measure = 'fpr')
+perf_logit_tbl.3 <- tibble(perf_logit.3@x.values[[1]], perf_logit.3@y.values[[1]])
+# Change the names of the columns of the tibble
+names(perf_logit_tbl.3) <- c('fpr', 'tpr')
+# Plot the ROC curve
+plot_roc(perf_logit_tbl.3) + labs(title = 'Logistic Regression Model 3')
+# Calculate AUC
+auc_logit.3 <- performance(pred_logit.3, measure = "auc")
+# Extract the AUC value
+auc_logit.3@y.values[[1]]
+```
+
+```{r}
+# Fit a decision tree model adding SibSp and Parch as features
+tree_mod.3 <- rpart(Survived ~ Pclass + Sex + Fare + Age + SibSp + Parch, data = train_set)
+# Visualize the tree
+plot(as.party(tree_mod.3))
+# Get the predictions from the model for the test set
+test_tree.3 <- predict(tree_mod.3, newdata = test_set)[,2]
+# Create the prediction object for the model
+pred_tree.3 <- prediction(predictions = test_tree.3, labels = test_set$Survived)
+# Get the FPR and TPR for the model
+perf_tree.3 <- performance(pred_tree.3, measure = 'tpr', x.measure = 'fpr')
+perf_tree_tbl.3 <- tibble(perf_tree.3@x.values[[1]], perf_tree.3@y.values[[1]])
+# Change the names of the columns of the tibble
+names(perf_tree_tbl.3) <- c('fpr', 'tpr')
+# Plot the ROC curve
+plot_roc(perf_tree_tbl.3) + labs(title = 'Decision Tree Model 3')
+# Calculate the AUC
+auc_tree.3 <- performance(pred_tree.3, measure = "auc")
+# Extract the AUC value
+auc_tree.3@y.values[[1]]
+```
 
 
