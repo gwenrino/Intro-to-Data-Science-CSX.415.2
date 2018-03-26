@@ -43,7 +43,7 @@ titanic$Survived <- factor(titanic$Survived)
 train_set <- titanic %>% sample_frac(0.7)
 
 # Create test set (observations in titanic$PassengerId that are not in train_set$PassengerId)
-test_set <- titanic %>% filter(!(titanic$PassengerId %in% train_set$PassengerId))
+test_set <- anti_join(titanic, train_set)
 ```
 
 ***
@@ -125,7 +125,7 @@ plot_roc(perf_logit_tbl) + labs(title = 'Logistic Regression Model')
 plot_roc(perf_tree_tbl) + labs(title = 'Decision Tree Model')
 ```
 
-b. The ROC curves appear roughly the same, though the decision tree curve is much smoother.
+b. The ROC curves appear quite similar, though the decision tree ROC curve is much smoother than the logistic regression ROC curve.
 
 The AUC calculations show that the models' performances are quite similar, with the logistic regression model slightly better than the decision tree model (AUC = 0.81 vs. AUC = 0.78).
 
@@ -155,8 +155,10 @@ test_set <- test_set %>%
   mutate(pred_cat_tree = case_when(pred_prob_tree < .64 ~ 'No',
                                     pred_prob_tree >= .64 ~ 'Yes'))
 
-# Create confusion matrices of each model's predictions
+# Create confusion matrix of the logistic regression model's predictions
 test_set %>% count(pred_cat_log, Survived) %>% spread(Survived, n)
+
+# Create confusion matrix of the decision tree model's predictions
 test_set %>% count(pred_cat_tree, Survived) %>% spread(Survived, n)
 
 # Accuracy of logistic regression model's predictions
