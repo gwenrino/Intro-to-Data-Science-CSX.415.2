@@ -16,3 +16,90 @@ library(rpart)
 library(partykit)
 library(randomForest)
 ```
+
+***
+## BOOTSTRAPPING  
+
+### Question 1  
+```{r}
+# Load data
+titanic <- read_csv("Titanic.csv")
+
+# Convert all character columns to unordered factors
+titanic$Name <- factor(titanic$Name)
+titanic$Sex <- factor(titanic$Sex)
+titanic$Ticket <- factor(titanic$Ticket)
+titanic$Cabin <- factor(titanic$Cabin)
+titanic$Embarked <- factor(titanic$Embarked)
+
+# Convert Survived and Pclass to unordered factors
+titanic$Survived <- factor(titanic$Survived)
+titanic$Pclass <- factor(titanic$Pclass)
+
+glimpse(titanic)
+```
+
+### Question 2  
+```{r}
+# Take 100 bootstrap samples of the data
+titanic_boot <- bootstrap(data = titanic, n = 100)
+titanic_boot 
+# The output confirms that this is a tibble with a list column of resample objects
+```
+
+### Question 3  
+```{r}
+# The first three bootstrapped samples each have a different number of distinct rows,
+# which confirms that they are in fact bootstrapped samples with some rows resampled
+as.tibble(titanic_boot$strap[[1]]) %>% n_distinct()
+as.tibble(titanic_boot$strap[[2]]) %>% n_distinct()
+as.tibble(titanic_boot$strap[[3]]) %>% n_distinct()
+```
+
+### Question 4  
+```{r}
+# Create a function that pulls out the mean of Age from each bootstrap sample
+age_mean <- function(x) {
+  data <- as.tibble(x) # Convert input data set to a tibble
+  mean_age <- mean(data$Age, na.rm = TRUE) # Take the mean of Age, remove NAs
+  return(mean_age) # Return the mean of Age
+}
+
+# Make an empty vector of 100 NAs
+all_means <- rep(NA, 100)
+
+# Create a loop that fills the empty vector using the function age_mean
+for(i in 1:100) {
+  all_means[i] <- age_mean(titanic_boot$strap[[i]])
+}
+
+# Take a look at some of the means you calculated from your samples
+head(all_means)
+
+# Convert to a tibble so we can use it for plotting
+all_means <- tibble(all_means = all_means)
+```
+
+### Question 5  
+
+The histogram shows the distribution of mean Age in the bootstrap samples.
+```{r}
+ggplot(data = all_means) + 
+  geom_histogram(aes(x = all_means), binwidth = .1)
+```
+
+### Question 6  
+
+The theoretical standard error of the sample mean of Age and the standard error calculated from the bootstrap sample means are pretty close, both around 0.5. The Central Limit Theorem holds!
+```{r}
+# Standard error of sample mean of Age using bootstrap sample means
+sd(all_means$all_means)
+
+# Theoretical standard error of sample mean of Age
+sd(titanic$Age, na.rm = TRUE)/sqrt(nrow(titanic))
+```
+
+***
+## RANDOM FOREST  
+
+### Question 1  
