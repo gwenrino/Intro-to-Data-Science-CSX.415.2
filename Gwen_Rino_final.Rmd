@@ -15,6 +15,7 @@ library(modelr)
 library(rpart)
 library(partykit)
 library(randomForest)
+library(ROCR)
 ```
 
 ***
@@ -40,17 +41,18 @@ glimpse(titanic)
 ```
 
 ### Question 2  
+
+The output confirms that this is a tibble with a list column of resample objects.
 ```{r}
 # Take 100 bootstrap samples of the data
 titanic_boot <- bootstrap(data = titanic, n = 100)
 titanic_boot 
-# The output confirms that this is a tibble with a list column of resample objects
 ```
 
 ### Question 3  
+
+The first three bootstrapped samples each have a different number of distinct rows, which confirms that they are in fact bootstrapped samples with some rows resampled.
 ```{r}
-# The first three bootstrapped samples each have a different number of distinct rows,
-# which confirms that they are in fact bootstrapped samples with some rows resampled
 as.tibble(titanic_boot$strap[[1]]) %>% n_distinct()
 as.tibble(titanic_boot$strap[[2]]) %>% n_distinct()
 as.tibble(titanic_boot$strap[[3]]) %>% n_distinct()
@@ -103,3 +105,99 @@ sd(titanic$Age, na.rm = TRUE)/sqrt(nrow(titanic))
 ## RANDOM FOREST  
 
 ### Question 1  
+```{r}
+# Split training and test sets
+set.seed(987)
+model_data <- resample_partition(titanic, c(test = 0.3, train = 0.7))
+train_set <- as.tibble(model_data$train)
+test_set <- as.tibble(model_data$test)
+```
+
+### Question 2  
+
+The "upstream" nodes of this decision tree model are the same or very nearly the same as last week's tree model. These are the first node, which splits males from females, the fifth node, which splits female passengers by Pclass, the sixth node, which splits third class female passengers by Fare with the cutoff at about $23, and the eighth node, which splits third class female passengers who paid lower fares by Fare with the cutoff at $7.89. 
+This model also has several changed or new nodes in comparison to last week's tree model, all splitting on the Age feature. It is noteworthy that the features SibSp, Parch, and Embarked do not play a role in this decision tree.
+```{r}
+# Fit the decision tree model
+tree_mod <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked, 
+                  data = train_set)
+# Visualize the tree
+plot(as.party(tree_mod))
+```
+
+### Question 3  
+```{r}
+# Fit the random forest model
+rf_mod <- randomForest(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked, 
+                         data = train_set, 
+                         ntrees = 500, 
+                         mtry = 4, 
+                         na.action = na.roughfix)
+```
+
+### Question 4  
+
+A comparison of the AUCs for the two models shows that the random forest model performs better than the decision tree model.
+```{r}
+# Get the predictions from each model for the test set
+rf_preds <- predict(rf_mod, newdata = test_set, type = 'prob')[,2]
+tree_preds <- predict(tree_mod, newdata = test_set)[,2]
+
+# Create the prediction objects for each model
+pred_rf <- prediction(predictions = rf_preds, labels = test_set$Survived)
+pred_tree <- prediction(predictions = tree_preds, labels = test_set$Survived)
+
+# Calculate the AUCs
+auc_rf <- performance(pred_rf, measure = "auc")
+auc_tree <- performance(pred_tree, measure = "auc")
+
+# Extract the AUC value for the random forest model
+auc_rf@y.values[[1]]
+
+# Extract the AUC value for the decision tree model
+auc_tree@y.values[[1]]
+```
+
+### Question 5    
+```{r}
+# Get the FPR and TPR for the random forest model
+perf_rf <- performance(pred_rf, measure = 'tpr', x.measure = 'fpr')
+perf_rf_tbl <- tibble(perf_rf@x.values[[1]], perf_rf@y.values[[1]])
+
+# Change the names of the columns of the tibble
+names(perf_rf_tbl) <- c('fpr', 'tpr')
+
+# Get the FPR and TPR for the tree model
+perf_tree <- performance(pred_tree, measure = 'tpr', x.measure = 'fpr')
+perf_tree_tbl <- tibble(perf_tree@x.values[[1]], perf_tree@y.values[[1]])
+
+# Change the names of the columns of the tibble
+names(perf_tree_tbl) <- c('fpr', 'tpr')
+
+# Combine the two tibbles
+all_perf_tbl <- bind_rows(perf_tree_tbl, perf_rf_tbl)
+```
+
+```{r}
+p = ggplot(data = all_perf_tbl) +
+  geom_abline(intercept = 0, slope = 1, lty = 3) +
+  labs(x = 'False positive rate', y = 'True positive rate', 
+       title = 'ROC Curves') +
+  geom_line(data = all_perf_tbl[1:9,], aes(x=fpr, y=tpr, color = 'Decision Tree Model')) + 
+  geom_line(data = all_perf_tbl[10:167,], aes(x=fpr, y=tpr, color = 'Random Forest Model')) +
+  scale_color_manual(" ", 
+                     breaks = c('Decision Tree Model', 'Random Forest Model'),
+                     values = c('red', 'blue')) +
+  theme_bw()
+
+p
+```
+  
+Acknowledgment to
+https://stackoverflow.com/questions/10349206/add-legend-to-ggplot2-line-plot
+for the solution for creating the legend.
+
+### Question 6  
+
+a. The random forest model performs better than the decision tree model.  
+b. At a true positive rate of 0.75, the decision tree model's false positive rate is about 0.33 while the random forest model's false positive rate is about 0.17. That's a really big difference!  
