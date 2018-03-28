@@ -1,0 +1,18 @@
+---
+title: "COMPSCIX 415.2 Take-Home Final"
+author: "Gwen Rino"
+date: "3/28/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(modelr)
+library(rpart)
+library(partykit)
+library(randomForest)
+```
