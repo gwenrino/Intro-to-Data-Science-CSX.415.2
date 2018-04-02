@@ -27,16 +27,18 @@ library(ROCR)
 titanic <- read_csv("Titanic.csv")
 
 # Convert all character columns to unordered factors
-titanic$Name <- factor(titanic$Name)
-titanic$Sex <- factor(titanic$Sex)
-titanic$Ticket <- factor(titanic$Ticket)
-titanic$Cabin <- factor(titanic$Cabin)
-titanic$Embarked <- factor(titanic$Embarked)
+titanic <- as.data.frame(unclass(titanic))
+# Acknowledgment of quick method for converting all character columns to factors at once: 
+# https://stackoverflow.com/questions/20637360/convert-all-data-frame-character-columns-to-factors
 
 # Convert Survived and Pclass to unordered factors
 titanic$Survived <- factor(titanic$Survived)
 titanic$Pclass <- factor(titanic$Pclass)
 
+# Convert it back to a tibble
+titanic <- as.tibble(titanic)
+
+# To confirm all is well
 glimpse(titanic)
 ```
 
@@ -122,7 +124,9 @@ This model also has several changed or new nodes in comparison to last week's tr
 tree_mod <- rpart(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked, 
                   data = train_set)
 # Visualize the tree
-plot(as.party(tree_mod))
+plot(as.party(tree_mod), gp=gpar(fontsize = 8))
+# Acknowledgment of method for changing font size in decision tree plot:
+# https://stackoverflow.com/questions/13751962/how-to-plot-a-large-ctree-to-avoid-overlapping-nodes
 ```
 
 ### Question 3  
@@ -191,11 +195,9 @@ p = ggplot(data = all_perf_tbl) +
   theme_bw()
 
 p
+# Acknowledgment of method for creating the legend: 
+# https://stackoverflow.com/questions/10349206/add-legend-to-ggplot2-line-plot
 ```
-  
-Acknowledgment to
-https://stackoverflow.com/questions/10349206/add-legend-to-ggplot2-line-plot
-for the solution for creating the legend.
 
 ### Question 6  
 
